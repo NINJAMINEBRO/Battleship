@@ -8,13 +8,13 @@ import bot
 
 
 class GameMenu:
-    ship_1x1 = pg.image.load("assets/1x1.png")
-    ship_1x2 = pg.image.load("assets/1x2.png")
-    ship_1x3 = pg.image.load("assets/1x3.png")
-    ship_1x4 = pg.image.load("assets/1x4.png")
+    scale_factor = 2
+    ship_1x1 = pg.transform.scale_by(pg.image.load("assets/1x1.png"), scale_factor)
+    ship_1x2 = pg.transform.scale_by(pg.image.load("assets/1x2.png"), scale_factor)
+    ship_1x3 = pg.transform.scale_by(pg.image.load("assets/1x3.png"), scale_factor)
+    ship_1x4 = pg.transform.scale_by(pg.image.load("assets/1x4.png"), scale_factor)
     ships = [ship_1x1, ship_1x2, ship_1x3, ship_1x4]
-    for i in range(len(ships)):
-        ships[i] = pg.transform.scale_by(ships[i], 2)
+
     def __init__(self, fps, clock, screen, centre, server, client):
         self.fps_cap = fps
         self.clock = clock
@@ -89,10 +89,20 @@ class GameMenu:
                                          rounding if y == 0 and x == boardsize-1 else -1,
                                          rounding if y == boardsize-1 and x == 0 else -1,
                                          rounding if y == boardsize-1 and x == boardsize-1 else -1)
+
                             if selection and pg.mouse.get_pressed()[0] and not mouse_pressed and rect.collidepoint(mousepos):
                                 mouse_pressed = True
                                 message = f"place:{selection[1]}:{x}:{y}"
                                 selection = None
+
+                            if myplayer.layout[y][x] == "S1":
+                                self.screen.blit(self.ship_1x1, (rect.x, rect.y))
+                            elif myplayer.layout[y][x] == "S2":
+                                self.screen.blit(self.ship_1x2, (rect.x, rect.y))
+                            elif myplayer.layout[y][x] == "S3":
+                                self.screen.blit(self.ship_1x3, (rect.x, rect.y))
+                            elif myplayer.layout[y][x] == "S4":
+                                self.screen.blit(self.ship_1x4, (rect.x, rect.y))
 
                     origin_x = 100
                     origin_y = 140
@@ -104,7 +114,7 @@ class GameMenu:
                             pg.draw.rect(self.screen, self.color.purple, rect, 2, 10)
                             if pg.mouse.get_pressed()[0] and not mouse_pressed:
                                 mouse_pressed = True
-                                selection = [self.ships[i], f"ship{i+1};hor"]
+                                selection = [self.ships[i], f"{i+1}:hor"]
 
                 if selection:
                     self.screen.blit(selection[0], mousepos)
@@ -124,12 +134,7 @@ class GameMenu:
             self.clock.tick(self.fps_cap)
 
             for event in pg.event.get():
-                if event.type == pg.KEYDOWN:
-                    if event.key == pg.K_ESCAPE:
-                        pg.quit()
-                        return False
-
-                if event.type == pg.QUIT:
+                if event.type == pg.QUIT or (event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE):
                     if self.server is not None:
                         self.server.terminate()
                     pg.quit()

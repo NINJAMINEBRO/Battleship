@@ -1,5 +1,6 @@
 import logger as log
 import time
+import copy
 
 class Game:
     def __init__(self):
@@ -71,7 +72,24 @@ class Game:
 
     def place_ship(self, player, command):
         values = command.split(":")
-        print(values)
-        print(player.layout)
-        player.layout[int(values[3])][int(values[2])] = values[1]
+
+        new_layout = copy.deepcopy(player.layout)
+
+        try:
+            for i in range(int(values[1])):
+                if values[2] == "hor":
+                    if new_layout[int(values[4])][int(values[3])+i] != "W":
+                        raise Exception("ships crashing")
+                    new_layout[int(values[4])][int(values[3])+i] = f"S{values[1]}"
+                elif values[2] == "ver":
+                    if new_layout[int(values[4])+i][int(values[3])] != "W":
+                        raise Exception("ships crashing")
+                    new_layout[int(values[4])+i][int(values[3])] = f"S{values[1]}"
+            player.layout = copy.deepcopy(new_layout)
+        except IndexError:
+            log.warning(f"{player.name} tried to place a ship out of bounce")
+        except Exception as e:
+            if str(e) == "ships crashing":
+                log.warning(f"{player.name} tried to place a ship on top of another ship")
+
         log.info(f"{player.name} placed a ship")
