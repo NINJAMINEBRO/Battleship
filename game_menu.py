@@ -101,21 +101,21 @@ class GameMenu:
                         for x in range(boardsize):
                             rect = pg.Rect(origin_x+x*scale, origin_y+y*scale, scale, scale)
                             if myplayer.layout[y][x] == "OS1H":
-                                self.screen.blit(self.ship_1x1, (rect.x, rect.y))
+                                self.screen.blit(pg.transform.scale_by(self.ship_1x1, scale/100), (rect.x, rect.y))
                             elif myplayer.layout[y][x] == "OS2H":
-                                self.screen.blit(self.ship_1x2, (rect.x, rect.y))
+                                self.screen.blit(pg.transform.scale_by(self.ship_1x2, scale/100), (rect.x, rect.y))
                             elif myplayer.layout[y][x] == "OS3H":
-                                self.screen.blit(self.ship_1x3, (rect.x, rect.y))
+                                self.screen.blit(pg.transform.scale_by(self.ship_1x3, scale/100), (rect.x, rect.y))
                             elif myplayer.layout[y][x] == "OS4H":
-                                self.screen.blit(self.ship_1x4, (rect.x, rect.y))
+                                self.screen.blit(pg.transform.scale_by(self.ship_1x4, scale/100), (rect.x, rect.y))
                             elif myplayer.layout[y][x] == "OS1V":
-                                self.screen.blit(pg.transform.rotate(self.ship_1x1, -90), (rect.x, rect.y))
+                                self.screen.blit(pg.transform.rotate(pg.transform.scale_by(self.ship_1x1, scale/100), -90), (rect.x, rect.y))
                             elif myplayer.layout[y][x] == "OS2V":
-                                self.screen.blit(pg.transform.rotate(self.ship_1x2, -90), (rect.x, rect.y))
+                                self.screen.blit(pg.transform.rotate(pg.transform.scale_by(self.ship_1x2, scale/100), -90), (rect.x, rect.y))
                             elif myplayer.layout[y][x] == "OS3V":
-                                self.screen.blit(pg.transform.rotate(self.ship_1x3, -90), (rect.x, rect.y))
+                                self.screen.blit(pg.transform.rotate(pg.transform.scale_by(self.ship_1x3, scale/100), -90), (rect.x, rect.y))
                             elif myplayer.layout[y][x] == "OS4V":
-                                self.screen.blit(pg.transform.rotate(self.ship_1x4, -90), (rect.x, rect.y))
+                                self.screen.blit(pg.transform.rotate(pg.transform.scale_by(self.ship_1x4, scale/100), -90), (rect.x, rect.y))
 
                     origin_x = 100
                     origin_y = 140
@@ -130,19 +130,19 @@ class GameMenu:
                                 orientation = "hor"
                                 selection = [self.ships[i].copy(), f"{i+1}:{orientation}"]
 
-                if selection:
-                    self.screen.blit(selection[0], mousepos)
-                    if pg.mouse.get_pressed()[0] and not mouse_pressed:
-                        mouse_pressed = True
-                        selection = None
-                    elif pg.mouse.get_pressed()[2] and not mouse_pressed:
-                        mouse_pressed = True
-                        if selection[1].endswith("hor"):
-                            selection[1] = selection[1][:-3]+"ver"
-                            selection[0] = pg.transform.rotate(selection[0], -90)
-                        elif selection[1].endswith("ver"):
-                            selection[1] = selection[1][:-3]+"hor"
-                            selection[0] = pg.transform.rotate(selection[0], 90)
+                    if selection:
+                        self.screen.blit(selection[0], mousepos)
+                        if pg.mouse.get_pressed()[0] and not mouse_pressed:
+                            mouse_pressed = True
+                            selection = None
+                        elif pg.mouse.get_pressed()[2] and not mouse_pressed:
+                            mouse_pressed = True
+                            if selection[1].endswith("hor"):
+                                selection[1] = selection[1][:-3]+"ver"
+                                selection[0] = pg.transform.rotate(selection[0], -90)
+                            elif selection[1].endswith("ver"):
+                                selection[1] = selection[1][:-3]+"hor"
+                                selection[0] = pg.transform.rotate(selection[0], 90)
 
             else:
                 if self.server is not None:

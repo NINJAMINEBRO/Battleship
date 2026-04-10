@@ -18,7 +18,7 @@ class Client:
 
     def receive_message(self, prev_data):
         try:
-            data = self.socket.recv(2048)
+            data = self.socket.recv(8192)
             if not data:
                 log.error("Server disconnected unexpectedly.")
                 return None

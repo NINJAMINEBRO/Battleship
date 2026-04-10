@@ -11,7 +11,7 @@ class Game:
         self.turn_count = 0
         self.duration = 0
         self.has_started = False
-        self.boardsize = 8
+        self.set_boardsize(8)
 
     def add_player(self, player):
         if player not in self.players:
@@ -86,10 +86,17 @@ class Game:
                         raise Exception("ships crashing")
                     new_layout[int(values[4])+i][int(values[3])] = f"OS{values[1]}V" if i == 0 else f"S{values[1]}"
             player.layout = copy.deepcopy(new_layout)
+            log.info(f"{player.name} placed a ship")
         except IndexError:
             log.warning(f"{player.name} tried to place a ship out of bounce")
         except Exception as e:
             if str(e) == "ships crashing":
                 log.warning(f"{player.name} tried to place a ship on top of another ship")
+            else:
+                log.error(str(e))
 
-        log.info(f"{player.name} placed a ship")
+    def set_boardsize(self, boardsize):
+        if boardsize > 24:
+            log.warning(f"the can not set board size above 24")
+            boardsize = 24
+        self.boardsize = boardsize
