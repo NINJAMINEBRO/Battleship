@@ -4,19 +4,24 @@ import pickle
 import time
 import random
 import logger as log
+import player
+import game
+import names
+import copy
 
+names = names.Names()
 
-def handle_client(conn, addr):
-    """
-    Handles a single client connection.
-    Receives data from the client and echoes it back.
-    """
+def handle_client(conn, addr, game):
     log.success(f"Connected by {addr}")
     command_timeout = 0.2
     last_command_time = time.time()
-    enemy_player = None
+    my_index = len(game.players)
+    game.add_player(player.Player(random.choice(names.names), my_index))
 
     while True:
+        if my_index == 0 and len(game.players) == 2 and not game.has_started:
+            game.start_game()
+
         # Receive data from the client (buffer size 1024 bytes)
         data = conn.recv(2048)
         if not data:
@@ -24,24 +29,37 @@ def handle_client(conn, addr):
             log.error(f"Client {addr} disconnected.")
             break
 
+        players = copy.deepcopy(game.players)
+        myplayer = players.pop(my_index)
+        if players:
+            enemy = players.pop(0)
+        else:
+            enemy = None
+
         message = data.decode('utf-8')
         if message == "disconnect":
-            log.info(f"Client {addr} requested disconnection.")
+            log.info(f"Client {game.players[my_index].name} requested disconnection.")
             break
         elif message == "surrender":
-            log.info(f"Client {addr} surrendered")
+            log.info(f"Client {game.players[my_index].name} surrendered")
+            game.game_over = True
+        elif message.startswith("shoot"):
+            pass
+        elif message.startswith("place"):
+            game.place_ship(game.players[my_index], message)
 
-        message = pickle.dumps(["a"])
+        game.time_over(myplayer)
+
+        if game.is_game_over():
+            message = pickle.dumps(["Game Over"])
+        else:
+            message = pickle.dumps([myplayer, enemy, game.boardsize])
 
         conn.sendall(message)
 
 
 def start_server(host, port):
-    """
-    Starts the server, binds to the specified host and port,
-    and listens for incoming client connections.
-    Each new connection is handled in a separate thread.
-    """
+    Game = game.Game()
 
     # Create a socket object using IPv4 and TCP
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -64,5 +82,5 @@ def start_server(host, port):
             # addr is the address of the client
             conn, addr = s.accept()
             # Start a new thread to handle the client connection
-            client_handler = threading.Thread(target=handle_client, args=(conn, addr))
+            client_handler = threading.Thread(target=handle_client, args=(conn, addr, Game))
             client_handler.start()

@@ -1,5 +1,7 @@
 import socket
 import logger as log
+import pickle
+import time
 
 
 class Client:
@@ -12,14 +14,9 @@ class Client:
         self.send_message("a")
 
     def send_message(self, message):
-        """
-        Sends a message to the server.
-        :param message: The message to send (string).
-        """
         self.socket.sendall(message.encode('utf-8'))
 
     def receive_message(self, prev_data):
-        import pickle
         try:
             data = self.socket.recv(2048)
             if not data:
@@ -36,10 +33,6 @@ class Client:
         return received_message
 
     def disconnect(self):
-        import time
-        """
-        Closes the socket connection to the server.
-        """
         self.send_message("disconnect")
         time.sleep(0.1)  # Give the server time to process the disconnection
         self.socket.close()

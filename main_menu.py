@@ -32,7 +32,7 @@ class MainMenu:
             if not pg.mouse.get_pressed()[0]:
                 mouse_pressed = False
 
-            self.screen.fill("gray")
+            self.screen.fill("darkgray")
 
             host_rect = pg.draw.rect(self.screen, self.color.orange, (self.centre.x-145, self.centre.y-37, 100, 32), 2, 10)
             text = self.font.normal_font.render('Host', True, self.color.red)

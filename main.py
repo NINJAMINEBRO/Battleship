@@ -39,12 +39,14 @@ if __name__ == '__main__':
     centre = centre.Centre(width, height)
     clock = pg.time.Clock()
     fps = 60
+    running = True
 
     initialize_extras()
 
-    main_menu = main_menu.MainMenu(fps, clock, screen, centre)
-    running = main_menu.loop(get_lan_ip(), "56565")
+    while running:
+        main_menu = main_menu.MainMenu(fps, clock, screen, centre)
+        running = main_menu.loop(get_lan_ip(), "56565")
 
-    if running:
-        game_menu = game_menu.GameMenu(fps, clock, screen, centre, main_menu.server, main_menu.client)
-        running = game_menu.loop()
+        if running:
+            game_menu = game_menu.GameMenu(fps, clock, screen, centre, main_menu.server, main_menu.client)
+            running = game_menu.loop()

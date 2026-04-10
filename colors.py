@@ -7,3 +7,4 @@ class Colors:
         self.yellow = (255, 255, 0)
         self.green = (0, 128, 0)
         self.black = (0, 0, 0)
+        self.purple = (120, 81, 169)
