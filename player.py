@@ -10,3 +10,4 @@ class Player:
         self.time_for_layout = 60
         self.layout = []
         self.setup = False
+        self.inventory = []

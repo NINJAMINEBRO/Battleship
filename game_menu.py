@@ -48,7 +48,7 @@ class GameMenu:
                         self.server.terminate()
                     else:
                         self.client.disconnect()
-                    return False
+                    return True
 
                 myplayer = data[0]
                 enemy = data[1]
@@ -123,6 +123,8 @@ class GameMenu:
                     for i in range(len(self.ships)):
                         rect = pg.Rect(origin_x, origin_y+spacing*i, self.ships[i].get_width(), self.ships[i].get_height())
                         self.screen.blit(self.ships[i], (origin_x, origin_y+spacing*i))
+                        text = self.font.normal_font.render(f"{myplayer.inventory[i]}x{i+1}", True, self.color.black)
+                        self.screen.blit(text, (rect.x-text.get_width()-10, rect.y+self.ships[i].get_height()//2-text.get_height()//2))
                         if rect.collidepoint(mousepos):
                             pg.draw.rect(self.screen, self.color.purple, rect, 2, 10)
                             if pg.mouse.get_pressed()[0] and not mouse_pressed:
@@ -131,7 +133,7 @@ class GameMenu:
                                 selection = [self.ships[i].copy(), f"{i+1}:{orientation}"]
 
                     if selection:
-                        self.screen.blit(selection[0], mousepos)
+                        self.screen.blit(selection[0], (mousepos[0]-50, mousepos[1]-50))
                         if pg.mouse.get_pressed()[0] and not mouse_pressed:
                             mouse_pressed = True
                             selection = None

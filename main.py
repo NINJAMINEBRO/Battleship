@@ -1,11 +1,11 @@
 import logger as log
 import colors as color
 import socket
-import main_menu
+import main_menu as MenuMain
 import pygame as pg
 from multiprocessing import freeze_support
 import centre
-import game_menu
+import game_menu as MenuGame
 
 def get_lan_ip():
     try:
@@ -44,9 +44,9 @@ if __name__ == '__main__':
     initialize_extras()
 
     while running:
-        main_menu = main_menu.MainMenu(fps, clock, screen, centre)
+        main_menu = MenuMain.MainMenu(fps, clock, screen, centre)
         running = main_menu.loop(get_lan_ip(), "56565")
 
         if running:
-            game_menu = game_menu.GameMenu(fps, clock, screen, centre, main_menu.server, main_menu.client)
+            game_menu = MenuGame.GameMenu(fps, clock, screen, centre, main_menu.server, main_menu.client)
             running = game_menu.loop()

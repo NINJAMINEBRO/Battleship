@@ -11,7 +11,7 @@ class Game:
         self.turn_count = 0
         self.duration = 0
         self.has_started = False
-        self.set_boardsize(8)
+        self.set_boardsize(12)
 
     def add_player(self, player):
         if player not in self.players:
@@ -37,6 +37,11 @@ class Game:
             for j in range(self.boardsize):
                 row = ["W" for _ in range(self.boardsize)]
                 self.players[i].layout.append(row)
+
+            self.players[i].inventory.append(self.boardsize*self.boardsize//36)
+            self.players[i].inventory.append(self.boardsize*self.boardsize//48)
+            self.players[i].inventory.append(self.boardsize*self.boardsize//72)
+            self.players[i].inventory.append(self.boardsize*self.boardsize//144)
 
         self.players[0].is_my_turn = True
         log.success(f"Game started with players: {', '.join([player.name for player in self.players])}")
@@ -75,25 +80,28 @@ class Game:
 
         new_layout = copy.deepcopy(player.layout)
 
-        try:
-            for i in range(int(values[1])):
-                if values[2] == "hor":
-                    if new_layout[int(values[4])][int(values[3])+i] != "W":
-                        raise Exception("ships crashing")
-                    new_layout[int(values[4])][int(values[3])+i] = f"OS{values[1]}H" if i == 0 else f"S{values[1]}"
-                elif values[2] == "ver":
-                    if new_layout[int(values[4])+i][int(values[3])] != "W":
-                        raise Exception("ships crashing")
-                    new_layout[int(values[4])+i][int(values[3])] = f"OS{values[1]}V" if i == 0 else f"S{values[1]}"
-            player.layout = copy.deepcopy(new_layout)
-            log.info(f"{player.name} placed a ship")
-        except IndexError:
-            log.warning(f"{player.name} tried to place a ship out of bounce")
-        except Exception as e:
-            if str(e) == "ships crashing":
-                log.warning(f"{player.name} tried to place a ship on top of another ship")
-            else:
-                log.error(str(e))
+        if player.inventory[int(values[1])-1] > 0:
+            try:
+                for i in range(int(values[1])):
+                    if values[2] == "hor":
+                        if new_layout[int(values[4])][int(values[3])+i] != "W":
+                            raise Exception("ships crashing")
+                        new_layout[int(values[4])][int(values[3])+i] = f"OS{values[1]}H" if i == 0 else f"S{values[1]}"
+                    elif values[2] == "ver":
+                        if new_layout[int(values[4])+i][int(values[3])] != "W":
+                            raise Exception("ships crashing")
+                        new_layout[int(values[4])+i][int(values[3])] = f"OS{values[1]}V" if i == 0 else f"S{values[1]}"
+
+                player.inventory[int(values[1])-1] -= 1
+                player.layout = copy.deepcopy(new_layout)
+                log.info(f"{player.name} placed a ship")
+            except IndexError:
+                log.warning(f"{player.name} tried to place a ship out of bounce")
+            except Exception as e:
+                if str(e) == "ships crashing":
+                    log.warning(f"{player.name} tried to place a ship on top of another ship")
+                else:
+                    log.error(str(e))
 
     def set_boardsize(self, boardsize):
         if boardsize > 24:
