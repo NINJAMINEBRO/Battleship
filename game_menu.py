@@ -5,6 +5,7 @@ from time import sleep, time
 import logger as log
 from threading import Thread
 import bot
+import copy
 
 
 class GameMenu:
@@ -31,9 +32,10 @@ class GameMenu:
         send_cooldown = 0.2
         last_send_time = time()
         selection = None
+        orientation = "hor"
         while True:
             message = "a"
-            if not pg.mouse.get_pressed()[0]:
+            if not pg.mouse.get_pressed()[0] and not pg.mouse.get_pressed()[2]:
                 mouse_pressed = False
 
             self.screen.fill("darkgray")  # fill the screen with a color to wipe away anything from last frame
@@ -95,14 +97,25 @@ class GameMenu:
                                 message = f"place:{selection[1]}:{x}:{y}"
                                 selection = None
 
-                            if myplayer.layout[y][x] == "S1":
+                    for y in range(boardsize):
+                        for x in range(boardsize):
+                            rect = pg.Rect(origin_x+x*scale, origin_y+y*scale, scale, scale)
+                            if myplayer.layout[y][x] == "OS1H":
                                 self.screen.blit(self.ship_1x1, (rect.x, rect.y))
-                            elif myplayer.layout[y][x] == "S2":
+                            elif myplayer.layout[y][x] == "OS2H":
                                 self.screen.blit(self.ship_1x2, (rect.x, rect.y))
-                            elif myplayer.layout[y][x] == "S3":
+                            elif myplayer.layout[y][x] == "OS3H":
                                 self.screen.blit(self.ship_1x3, (rect.x, rect.y))
-                            elif myplayer.layout[y][x] == "S4":
+                            elif myplayer.layout[y][x] == "OS4H":
                                 self.screen.blit(self.ship_1x4, (rect.x, rect.y))
+                            elif myplayer.layout[y][x] == "OS1V":
+                                self.screen.blit(pg.transform.rotate(self.ship_1x1, -90), (rect.x, rect.y))
+                            elif myplayer.layout[y][x] == "OS2V":
+                                self.screen.blit(pg.transform.rotate(self.ship_1x2, -90), (rect.x, rect.y))
+                            elif myplayer.layout[y][x] == "OS3V":
+                                self.screen.blit(pg.transform.rotate(self.ship_1x3, -90), (rect.x, rect.y))
+                            elif myplayer.layout[y][x] == "OS4V":
+                                self.screen.blit(pg.transform.rotate(self.ship_1x4, -90), (rect.x, rect.y))
 
                     origin_x = 100
                     origin_y = 140
@@ -114,13 +127,22 @@ class GameMenu:
                             pg.draw.rect(self.screen, self.color.purple, rect, 2, 10)
                             if pg.mouse.get_pressed()[0] and not mouse_pressed:
                                 mouse_pressed = True
-                                selection = [self.ships[i], f"{i+1}:hor"]
+                                orientation = "hor"
+                                selection = [self.ships[i].copy(), f"{i+1}:{orientation}"]
 
                 if selection:
                     self.screen.blit(selection[0], mousepos)
                     if pg.mouse.get_pressed()[0] and not mouse_pressed:
                         mouse_pressed = True
                         selection = None
+                    elif pg.mouse.get_pressed()[2] and not mouse_pressed:
+                        mouse_pressed = True
+                        if selection[1].endswith("hor"):
+                            selection[1] = selection[1][:-3]+"ver"
+                            selection[0] = pg.transform.rotate(selection[0], -90)
+                        elif selection[1].endswith("ver"):
+                            selection[1] = selection[1][:-3]+"hor"
+                            selection[0] = pg.transform.rotate(selection[0], 90)
 
             else:
                 if self.server is not None:

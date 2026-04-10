@@ -7,5 +7,11 @@ class Names:
             "Artemis",
             "Perseverance",
             "Curiosity",
-            "James WST"
+            "James WST",
+            "Selene",
+            "Helios",
+            "Gaia",
+            "Terra",
+            "Sol",
+            "Luna"
         ]

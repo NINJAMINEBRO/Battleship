@@ -80,11 +80,11 @@ class Game:
                 if values[2] == "hor":
                     if new_layout[int(values[4])][int(values[3])+i] != "W":
                         raise Exception("ships crashing")
-                    new_layout[int(values[4])][int(values[3])+i] = f"S{values[1]}"
+                    new_layout[int(values[4])][int(values[3])+i] = f"OS{values[1]}H" if i == 0 else f"S{values[1]}"
                 elif values[2] == "ver":
                     if new_layout[int(values[4])+i][int(values[3])] != "W":
                         raise Exception("ships crashing")
-                    new_layout[int(values[4])+i][int(values[3])] = f"S{values[1]}"
+                    new_layout[int(values[4])+i][int(values[3])] = f"OS{values[1]}V" if i == 0 else f"S{values[1]}"
             player.layout = copy.deepcopy(new_layout)
         except IndexError:
             log.warning(f"{player.name} tried to place a ship out of bounce")
