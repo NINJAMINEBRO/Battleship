@@ -7,7 +7,7 @@ class Player:
         self.is_my_turn = False
         self.turn_start = 0
         self.time_for_turn = 15
-        self.time_for_layout = 60
+        self.time_for_layout = 0  # Set by Server in Game logic
         self.layout = []
         self.setup = False
         self.inventory = []

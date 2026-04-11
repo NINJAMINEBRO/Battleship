@@ -10,10 +10,11 @@ import copy
 
 class GameMenu:
     scale_factor = 2
-    ship_1x1 = pg.transform.scale_by(pg.image.load("assets/1x1.png"), scale_factor)
-    ship_1x2 = pg.transform.scale_by(pg.image.load("assets/1x2.png"), scale_factor)
-    ship_1x3 = pg.transform.scale_by(pg.image.load("assets/1x3.png"), scale_factor)
-    ship_1x4 = pg.transform.scale_by(pg.image.load("assets/1x4.png"), scale_factor)
+    pack_name = "premium"
+    ship_1x1 = pg.transform.scale_by(pg.image.load(f"assets/{pack_name}/1x1.png"), scale_factor)
+    ship_1x2 = pg.transform.scale_by(pg.image.load(f"assets/{pack_name}/1x2.png"), scale_factor)
+    ship_1x3 = pg.transform.scale_by(pg.image.load(f"assets/{pack_name}/1x3.png"), scale_factor)
+    ship_1x4 = pg.transform.scale_by(pg.image.load(f"assets/{pack_name}/1x4.png"), scale_factor)
     ships = [ship_1x1, ship_1x2, ship_1x3, ship_1x4]
 
     def __init__(self, fps, clock, screen, centre, server, client):
@@ -32,7 +33,6 @@ class GameMenu:
         send_cooldown = 0.2
         last_send_time = time()
         selection = None
-        orientation = "hor"
         while True:
             message = "a"
             if not pg.mouse.get_pressed()[0] and not pg.mouse.get_pressed()[2]:
@@ -59,23 +59,32 @@ class GameMenu:
                 """
 
                 mousepos = pg.mouse.get_pos()
-                surrender_button = pg.draw.rect(self.screen, self.color.black, (10, 10, 128, 32), 2, 10)
+
                 text = self.font.normal_font.render("GIVE UP", True, self.color.black)
-                self.screen.blit(text, (surrender_button.x + (surrender_button.width // 2 - text.get_width() // 2),
-                                   surrender_button.y + (surrender_button.height // 2 - text.get_height() // 2)))
-                if surrender_button.collidepoint(mousepos) and pg.mouse.get_pressed()[0] and not mouse_pressed:
-                    mouse_pressed = True
-                    message = "surrender"
+                rect = pg.Rect(10, 10, 128, 32)
+                self.screen.blit(text, (rect.x + (rect.width // 2 - text.get_width() // 2),
+                                   rect.y + (rect.height // 2 - text.get_height() // 2)))
+                if rect.collidepoint(mousepos):
+                    pg.draw.rect(self.screen, self.color.purple, rect, 2, 10)
+                    if pg.mouse.get_pressed()[0] and not mouse_pressed:
+                        mouse_pressed = True
+                        message = "surrender"
+                else:
+                    pg.draw.rect(self.screen, self.color.black, rect, 2, 10)
 
                 if not enemy:
-                    add_bot_button = pg.draw.rect(self.screen, self.color.black, (self.centre.x - 64, self.centre.y - 280, 128, 32), 2, 10)
                     text = self.font.normal_font.render("Add Bot", True, self.color.black)
-                    self.screen.blit(text, (add_bot_button.x + (add_bot_button.width // 2 - text.get_width() // 2),
-                                       add_bot_button.y + (add_bot_button.height // 2 - text.get_height() // 2)))
-                    if add_bot_button.collidepoint(mousepos) and pg.mouse.get_pressed()[0] and not mouse_pressed:
-                        mouse_pressed = True
-                        t1 = Thread(target=bot.Bot, args=(self.client.host, self.client.port))
-                        t1.start()
+                    rect = pg.Rect(self.centre.x - 64, self.centre.y - 280, 128, 32)
+                    self.screen.blit(text, (rect.x + (rect.width // 2 - text.get_width() // 2),
+                                       rect.y + (rect.height // 2 - text.get_height() // 2)))
+                    if rect.collidepoint(mousepos):
+                        pg.draw.rect(self.screen, self.color.purple, rect, 2, 10)
+                        if pg.mouse.get_pressed()[0] and not mouse_pressed:
+                            mouse_pressed = True
+                            t1 = Thread(target=bot.Bot, args=(self.client.host, self.client.port))
+                            t1.start()
+                    else:
+                         pg.draw.rect(self.screen, self.color.black, rect, 2, 10)
 
                 if myplayer.setup:
                     base_scale = 800
@@ -130,10 +139,27 @@ class GameMenu:
                             if pg.mouse.get_pressed()[0] and not mouse_pressed:
                                 mouse_pressed = True
                                 orientation = "hor"
-                                selection = [self.ships[i].copy(), f"{i+1}:{orientation}"]
+                                selection = [pg.transform.scale_by(self.ships[i].copy(), scale/100), f"{i+1}:{orientation}"]
+
+                    pad = 3
+                    text = self.font.normal_font.render(f"confirm", True, self.color.black)
+                    rect = pg.Rect(self.centre.x-text.get_width()//2-pad, 1000-pad, text.get_width()+pad*2, text.get_height()+pad*2)
+                    self.screen.blit(text, (rect.x+pad, rect.y+pad))
+                    if rect.collidepoint(mousepos):
+                        pg.draw.rect(self.screen, self.color.purple, rect, 2, 10)
+                        if pg.mouse.get_pressed()[0] and not mouse_pressed:
+                            mouse_pressed = True
+                            message = "confirm layout"
+                    else:
+                        pg.draw.rect(self.screen, self.color.black, rect, 2, 10)
 
                     if selection:
-                        self.screen.blit(selection[0], (mousepos[0]-50, mousepos[1]-50))
+                        if selection[1].endswith("hor"):
+                            self.screen.blit(selection[0], (mousepos[0]-(selection[0].get_height()//2),
+                                                            mousepos[1]-(selection[0].get_height()//2)))
+                        elif selection[1].endswith("ver"):
+                            self.screen.blit(selection[0], (mousepos[0] - (selection[0].get_width() // 2),
+                                                            mousepos[1] - (selection[0].get_width() // 2)))
                         if pg.mouse.get_pressed()[0] and not mouse_pressed:
                             mouse_pressed = True
                             selection = None
@@ -145,6 +171,11 @@ class GameMenu:
                             elif selection[1].endswith("ver"):
                                 selection[1] = selection[1][:-3]+"hor"
                                 selection[0] = pg.transform.rotate(selection[0], 90)
+
+                    time_left = myplayer.turn_start + myplayer.time_for_layout - time()
+                    if time_left > 0:
+                        text = self.font.normal_font.render(f"Time Left: {int(round(time_left, 0))}", True, self.color.black)
+                        self.screen.blit(text, (self.centre.x-text.get_width()//2, rect.y+text.get_height() + 10))
 
             else:
                 if self.server is not None:

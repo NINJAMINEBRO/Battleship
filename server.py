@@ -22,7 +22,6 @@ def handle_client(conn, addr, game):
         if my_index == 0 and len(game.players) == 2 and not game.has_started:
             game.start_game()
 
-        # Receive data from the client (buffer size 1024 bytes)
         data = conn.recv(2048)
         if not data:
             # If no data is received, the client has disconnected
@@ -38,15 +37,32 @@ def handle_client(conn, addr, game):
 
         message = data.decode('utf-8')
         if message == "disconnect":
-            log.info(f"Client {game.players[my_index].name} requested disconnection.")
+            log.info(f"{game.players[my_index].name} requested disconnection.")
             break
         elif message == "surrender":
-            log.info(f"Client {game.players[my_index].name} surrendered")
+            log.info(f"{game.players[my_index].name} surrendered")
             game.game_over = True
-        elif message.startswith("shoot"):
-            pass
-        elif message.startswith("place"):
-            game.place_ship(game.players[my_index], message)
+        elif message == "a":
+            pass  # message to stay connected
+
+        elif time.time() >= last_command_time + command_timeout:
+            last_command_time = time.time()
+            if message.startswith("shoot"):
+                pass
+            elif message.startswith("random place"):
+                game.rand_place(game.players[my_index])
+            elif message.startswith("place"):
+                if game.players[my_index].setup:
+                    game.place_ship(game.players[my_index], message)
+
+                if my_index == 0:
+                    print_list(game.players[my_index].layout)
+
+            elif message.startswith("confirm layout"):
+                game.players[my_index].setup = False
+                log.info(f"{game.players[my_index].name} finished their setup")
+
+                print_list(game.players[my_index].layout)
 
         game.time_over(myplayer)
 
@@ -57,6 +73,10 @@ def handle_client(conn, addr, game):
 
         conn.sendall(message)
 
+
+def print_list(l):
+    for i in range(len(l)):
+        print(l[i])
 
 def start_server(host, port):
     Game = game.Game()

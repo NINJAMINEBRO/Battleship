@@ -13,7 +13,7 @@ class Bot:
 
     def loop(self):
         data = None
-        send_cooldown = 0.35
+        send_cooldown = 0.3
         last_send_time = time()
         while True:
             message = "a"
@@ -36,7 +36,13 @@ class Bot:
             self.bot.send_message(message)
 
     def play_logic(self, mypl, message):
-        if mypl.is_my_turn:
+        if mypl.setup:
+            if mypl.inventory.count(0) < len(mypl.inventory):
+                message = f"random place"
+            else:
+                message = f"confirm layout"
+
+        elif mypl.is_my_turn:
             x, y = 0, 0
             message = f"shoot:{x},{y}"
 

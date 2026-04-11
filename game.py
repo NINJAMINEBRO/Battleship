@@ -1,17 +1,19 @@
 import logger as log
 import time
 import copy
+import random
 
 class Game:
     def __init__(self):
         self.players = []
         self.starttime = 0
-        self.current_phase = 0
+        self.phase = -1
         self.game_over = False
         self.turn_count = 0
         self.duration = 0
         self.has_started = False
         self.set_boardsize(12)
+        self.layout_time = 60
 
     def add_player(self, player):
         if player not in self.players:
@@ -30,10 +32,11 @@ class Game:
     def start_game(self):
         if len(self.players) < 2:
             log.info("Not enough players to start the game.")
-            return False
 
         for i in range(len(self.players)):
             self.players[i].setup = True
+            self.players[i].turn_start = time.time()
+            self.players[i].time_for_layout = self.layout_time
             for j in range(self.boardsize):
                 row = ["W" for _ in range(self.boardsize)]
                 self.players[i].layout.append(row)
@@ -43,11 +46,15 @@ class Game:
             self.players[i].inventory.append(self.boardsize*self.boardsize//72)
             self.players[i].inventory.append(self.boardsize*self.boardsize//144)
 
+            if self.players[i].inventory[0] <= 0:
+                self.players[i].inventory[0] = 1
+
         self.players[0].is_my_turn = True
         log.success(f"Game started with players: {', '.join([player.name for player in self.players])}")
         self.players[0].turn_start = time.time()
         self.starttime = time.time()
         self.has_started = True
+        self.phase = 0
 
     def next_player(self):
         self.turn_count += 1
@@ -63,13 +70,14 @@ class Game:
         pass
 
     def time_over(self, player):
-        if player.is_my_turn and player.turn_start + player.time_for_turn <= time.time():
+        if self.phase == 0 and player.turn_start + self.layout_time <= time.time():
+            log.info(f"{player.name} has run out of time")
+            player.setup = False
+        elif self.phase == 1 and player.is_my_turn and player.turn_start + player.time_for_turn <= time.time():
             log.info(f"{player.name} has run out of time.")
             self.next_player()
 
     def is_game_over(self):
-        if len(self.players) >= 2:
-            pass
         if self.game_over:
             self.duration = time.time() - self.starttime
             return True
@@ -103,8 +111,17 @@ class Game:
                 else:
                     log.error(str(e))
 
+    def rand_place(self, player):
+        while player.inventory.count(0) < len(player.inventory):
+            command = (f"place:"
+                       f"{random.randint(1, len(player.inventory))}:"
+                       f"{random.choice(["hor", "ver"])}:"
+                       f"{random.randint(0, len(player.layout))}:"
+                       f"{random.randint(0, len(player.layout[0]))}")
+            self.place_ship(player, command)
+
     def set_boardsize(self, boardsize):
         if boardsize > 24:
-            log.warning(f"the can not set board size above 24")
+            log.warning(f"You can not set the board size above 24")
             boardsize = 24
         self.boardsize = boardsize
