@@ -15,6 +15,8 @@ class GameMenu:
     ship_1x2 = pg.transform.scale_by(pg.image.load(f"assets/{pack_name}/1x2.png"), scale_factor)
     ship_1x3 = pg.transform.scale_by(pg.image.load(f"assets/{pack_name}/1x3.png"), scale_factor)
     ship_1x4 = pg.transform.scale_by(pg.image.load(f"assets/{pack_name}/1x4.png"), scale_factor)
+    symbol_hit = pg.transform.scale_by(pg.image.load(f"assets/{pack_name}/symbols/hit.png"), scale_factor)
+    symbol_water = pg.transform.scale_by(pg.image.load(f"assets/{pack_name}/symbols/water.png"), scale_factor)
     ships = [ship_1x1, ship_1x2, ship_1x3, ship_1x4]
 
     def __init__(self, fps, clock, screen, centre, server, client):
@@ -180,6 +182,7 @@ class GameMenu:
                     origin_x = self.screen.get_width() - base_scale - pad
                     origin_y = pad
                     self.draw_field(base_scale, boardsize, origin_x, origin_y, myplayer)
+                    self.draw_ships(boardsize, enemy.enemy_layout, origin_x, origin_y, base_scale//boardsize)
 
                     base_scale = 800
                     scale = base_scale // boardsize
@@ -203,9 +206,15 @@ class GameMenu:
 
                     self.draw_ships(boardsize, myplayer.enemy_layout, origin_x, origin_y, scale)
 
+                    time_left = myplayer.turn_start + myplayer.time_for_turn - time()
                     if enemy.setup:
                         text = self.font.normal_font.render(f"Waiting for enemy", True, self.color.black)
                         self.screen.blit(text, (self.centre.x-text.get_width()//2, 1000))
+                    elif time_left > 0:
+                        text = self.font.normal_font.render(f"Time Left: {int(round(time_left, 0))}", True,
+                                                            self.color.black)
+                        self.screen.blit(text, (self.centre.x - text.get_width() // 2, 1000))
+
 
             else:
                 if self.server is not None:
@@ -253,6 +262,10 @@ class GameMenu:
                     self.screen.blit(
                         pg.transform.rotate(pg.transform.scale_by(self.ship_1x4, scale / 100), -90),
                         (rect.x, rect.y))
+                elif layout[y][x] == "S":
+                    self.screen.blit(pg.transform.scale_by(self.symbol_hit, scale / 100), (rect.x, rect.y))
+                elif layout[y][x] == "W":
+                    self.screen.blit(pg.transform.scale_by(self.symbol_water, scale / 100), (rect.x, rect.y))
 
     def draw_field(self, base_scale, boardsize, x, y, player):
         scale = base_scale // boardsize

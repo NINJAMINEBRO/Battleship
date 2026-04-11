@@ -71,6 +71,15 @@ class Game:
     def shoot_field(self, player, command):
         values = command.split(":")
 
+        x = int(values[1])
+        y = int(values[2])
+        enemy_index = copy.deepcopy(self.players)
+        enemy_index.pop(player.player_id)
+        enemy = enemy_index[0]
+        player.enemy_layout[y][x] = "S" if enemy.layout[y][x] != "W" else "W"
+
+        self.next_player()
+
     def time_over(self, player):
         if self.phase == 0 and player.turn_start + self.layout_time <= time.time() and player.setup:
             log.info(f"{player.name} has run out of time")
@@ -85,6 +94,11 @@ class Game:
             self.duration = time.time() - self.starttime
             return True
         return False
+
+    def change_phase(self):
+        if not self.players[0].setup and not self.players[1].setup and self.phase == 0:
+            self.phase = 1
+            self.players[0].turn_start = time.time()
 
     def place_ship(self, player, command):
         values = command.split(":")

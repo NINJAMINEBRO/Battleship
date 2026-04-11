@@ -21,7 +21,7 @@ def handle_client(conn, addr, game):
     for p in game.players:
         if p.name in name:
             name.remove(p.name)
-    
+
     game.add_player(player.Player(random.choice(name), my_index))
 
     while True:
@@ -69,7 +69,9 @@ def handle_client(conn, addr, game):
                 log.info(f"{game.players[my_index].name} finished their setup")
                 game.rand_place(game.players[my_index])
 
-        game.time_over(myplayer)
+        if game.has_started:
+            game.change_phase()
+            game.time_over(myplayer)
 
         if game.is_game_over():
             message = pickle.dumps(["Game Over"])

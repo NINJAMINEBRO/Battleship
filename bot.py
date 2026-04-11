@@ -43,7 +43,16 @@ class Bot:
                 message = f"confirm layout"
 
         elif mypl.is_my_turn:
-            x, y = 0, 0
-            message = f"shoot:{x},{y}"
+            not_shoot_coors = []
+            for x in range(len(mypl.enemy_layout)):
+                for y in range(len(mypl.enemy_layout[x])):
+                    if mypl.enemy_layout[y][x] == "":
+                        not_shoot_coors.append([x, y])
+
+            if not_shoot_coors:
+                coord = random.choice(not_shoot_coors)
+                message = f"shoot:{coord[0]}:{coord[1]}"
+            else:
+                message = f"shoot:0:0"
 
         return message
