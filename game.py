@@ -40,6 +40,8 @@ class Game:
             for j in range(self.boardsize):
                 row = ["W" for _ in range(self.boardsize)]
                 self.players[i].layout.append(row)
+                row = ["" for _ in range(self.boardsize)]
+                self.players[i].enemy_layout.append(row)
 
             self.players[i].inventory.append(self.boardsize*self.boardsize//36)
             self.players[i].inventory.append(self.boardsize*self.boardsize//48)
@@ -66,13 +68,14 @@ class Game:
             if player.is_my_turn:
                 player.turn_start = time.time()
 
-    def shoot_field(self, player):
-        pass
+    def shoot_field(self, player, command):
+        values = command.split(":")
 
     def time_over(self, player):
-        if self.phase == 0 and player.turn_start + self.layout_time <= time.time():
+        if self.phase == 0 and player.turn_start + self.layout_time <= time.time() and player.setup:
             log.info(f"{player.name} has run out of time")
             player.setup = False
+            self.rand_place(player)
         elif self.phase == 1 and player.is_my_turn and player.turn_start + player.time_for_turn <= time.time():
             log.info(f"{player.name} has run out of time.")
             self.next_player()

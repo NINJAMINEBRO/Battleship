@@ -32,7 +32,7 @@ class GameMenu:
         data = None
         send_cooldown = 0.2
         last_send_time = time()
-        selection = None
+        selection = []
         while True:
             message = "a"
             if not pg.mouse.get_pressed()[0] and not pg.mouse.get_pressed()[2]:
@@ -104,27 +104,9 @@ class GameMenu:
                             if selection and pg.mouse.get_pressed()[0] and not mouse_pressed and rect.collidepoint(mousepos):
                                 mouse_pressed = True
                                 message = f"place:{selection[1]}:{x}:{y}"
-                                selection = None
+                                selection = []
 
-                    for y in range(boardsize):
-                        for x in range(boardsize):
-                            rect = pg.Rect(origin_x+x*scale, origin_y+y*scale, scale, scale)
-                            if myplayer.layout[y][x] == "OS1H":
-                                self.screen.blit(pg.transform.scale_by(self.ship_1x1, scale/100), (rect.x, rect.y))
-                            elif myplayer.layout[y][x] == "OS2H":
-                                self.screen.blit(pg.transform.scale_by(self.ship_1x2, scale/100), (rect.x, rect.y))
-                            elif myplayer.layout[y][x] == "OS3H":
-                                self.screen.blit(pg.transform.scale_by(self.ship_1x3, scale/100), (rect.x, rect.y))
-                            elif myplayer.layout[y][x] == "OS4H":
-                                self.screen.blit(pg.transform.scale_by(self.ship_1x4, scale/100), (rect.x, rect.y))
-                            elif myplayer.layout[y][x] == "OS1V":
-                                self.screen.blit(pg.transform.rotate(pg.transform.scale_by(self.ship_1x1, scale/100), -90), (rect.x, rect.y))
-                            elif myplayer.layout[y][x] == "OS2V":
-                                self.screen.blit(pg.transform.rotate(pg.transform.scale_by(self.ship_1x2, scale/100), -90), (rect.x, rect.y))
-                            elif myplayer.layout[y][x] == "OS3V":
-                                self.screen.blit(pg.transform.rotate(pg.transform.scale_by(self.ship_1x3, scale/100), -90), (rect.x, rect.y))
-                            elif myplayer.layout[y][x] == "OS4V":
-                                self.screen.blit(pg.transform.rotate(pg.transform.scale_by(self.ship_1x4, scale/100), -90), (rect.x, rect.y))
+                    self.draw_ships(boardsize, myplayer.layout, origin_x, origin_y, scale)
 
                     origin_x = 100
                     origin_y = 140
@@ -162,7 +144,7 @@ class GameMenu:
                                                             mousepos[1] - (selection[0].get_width() // 2)))
                         if pg.mouse.get_pressed()[0] and not mouse_pressed:
                             mouse_pressed = True
-                            selection = None
+                            selection = []
                         elif pg.mouse.get_pressed()[2] and not mouse_pressed:
                             mouse_pressed = True
                             if selection[1].endswith("hor"):
@@ -192,6 +174,39 @@ class GameMenu:
                     else:
                         pg.draw.rect(self.screen, self.color.black, rect, 2, 10)
 
+                elif not myplayer.setup and myplayer.turn_start > 0:
+                    base_scale = 400
+                    pad = 20
+                    origin_x = self.screen.get_width() - base_scale - pad
+                    origin_y = pad
+                    self.draw_field(base_scale, boardsize, origin_x, origin_y, myplayer)
+
+                    base_scale = 800
+                    scale = base_scale // boardsize
+                    origin_x = self.centre.x - ((boardsize / 2) * scale)
+                    origin_y = self.centre.y - (base_scale / 2)
+                    rounding = scale // 8
+                    for y in range(boardsize):
+                        for x in range(boardsize):
+                            rect = pg.Rect(origin_x + x * scale, origin_y + y * scale, scale, scale)
+                            pg.draw.rect(self.screen,
+                                         self.color.purple if rect.collidepoint(mousepos) else self.color.black, rect,
+                                         2, -1,
+                                         rounding if y == 0 and x == 0 else -1,
+                                         rounding if y == 0 and x == boardsize - 1 else -1,
+                                         rounding if y == boardsize - 1 and x == 0 else -1,
+                                         rounding if y == boardsize - 1 and x == boardsize - 1 else -1)
+
+                            if pg.mouse.get_pressed()[0] and not mouse_pressed and rect.collidepoint(mousepos):
+                                mouse_pressed = True
+                                message = f"shoot:{x}:{y}"
+
+                    self.draw_ships(boardsize, myplayer.enemy_layout, origin_x, origin_y, scale)
+
+                    if enemy.setup:
+                        text = self.font.normal_font.render(f"Waiting for enemy", True, self.color.black)
+                        self.screen.blit(text, (self.centre.x-text.get_width()//2, 1000))
+
             else:
                 if self.server is not None:
                     self.server.terminate()
@@ -209,3 +224,48 @@ class GameMenu:
                         self.server.terminate()
                     pg.quit()
                     return False
+
+    def draw_ships(self, boardsize, layout, origin_x, origin_y, scale):
+        for y in range(boardsize):
+            for x in range(boardsize):
+                rect = pg.Rect(origin_x + x * scale, origin_y + y * scale, scale, scale)
+                if layout[y][x] == "OS1H":
+                    self.screen.blit(pg.transform.scale_by(self.ship_1x1, scale / 100), (rect.x, rect.y))
+                elif layout[y][x] == "OS2H":
+                    self.screen.blit(pg.transform.scale_by(self.ship_1x2, scale / 100), (rect.x, rect.y))
+                elif layout[y][x] == "OS3H":
+                    self.screen.blit(pg.transform.scale_by(self.ship_1x3, scale / 100), (rect.x, rect.y))
+                elif layout[y][x] == "OS4H":
+                    self.screen.blit(pg.transform.scale_by(self.ship_1x4, scale / 100), (rect.x, rect.y))
+                elif layout[y][x] == "OS1V":
+                    self.screen.blit(
+                        pg.transform.rotate(pg.transform.scale_by(self.ship_1x1, scale / 100), -90),
+                        (rect.x, rect.y))
+                elif layout[y][x] == "OS2V":
+                    self.screen.blit(
+                        pg.transform.rotate(pg.transform.scale_by(self.ship_1x2, scale / 100), -90),
+                        (rect.x, rect.y))
+                elif layout[y][x] == "OS3V":
+                    self.screen.blit(
+                        pg.transform.rotate(pg.transform.scale_by(self.ship_1x3, scale / 100), -90),
+                        (rect.x, rect.y))
+                elif layout[y][x] == "OS4V":
+                    self.screen.blit(
+                        pg.transform.rotate(pg.transform.scale_by(self.ship_1x4, scale / 100), -90),
+                        (rect.x, rect.y))
+
+    def draw_field(self, base_scale, boardsize, x, y, player):
+        scale = base_scale // boardsize
+        origin_x = x
+        origin_y = y
+        rounding = scale // 8
+        for y in range(boardsize):
+            for x in range(boardsize):
+                rect = pg.Rect(origin_x + x * scale, origin_y + y * scale, scale, scale)
+                pg.draw.rect(self.screen, self.color.black, rect, 2, -1,
+                             rounding if y == 0 and x == 0 else -1,
+                             rounding if y == 0 and x == boardsize - 1 else -1,
+                             rounding if y == boardsize - 1 and x == 0 else -1,
+                             rounding if y == boardsize - 1 and x == boardsize - 1 else -1)
+
+        self.draw_ships(boardsize, player.layout, origin_x, origin_y, scale)

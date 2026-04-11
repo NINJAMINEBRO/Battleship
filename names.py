@@ -13,5 +13,10 @@ class Names:
             "Gaia",
             "Terra",
             "Sol",
-            "Luna"
+            "Luna",
+            "Apollo",
+            "Sojus",
+            "Saturn V",
+            "Sagittarius A",
+            "Phoenix A"
         ]

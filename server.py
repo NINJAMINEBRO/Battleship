@@ -16,7 +16,13 @@ def handle_client(conn, addr, game):
     command_timeout = 0.2
     last_command_time = time.time()
     my_index = len(game.players)
-    game.add_player(player.Player(random.choice(names.names), my_index))
+
+    name = copy.deepcopy(names.names)
+    for p in game.players:
+        if p.name in name:
+            name.remove(p.name)
+    
+    game.add_player(player.Player(random.choice(name), my_index))
 
     while True:
         if my_index == 0 and len(game.players) == 2 and not game.has_started:
@@ -48,7 +54,7 @@ def handle_client(conn, addr, game):
         elif time.time() >= last_command_time + command_timeout:
             last_command_time = time.time()
             if message.startswith("shoot"):
-                pass
+                game.shoot_field(game.players[my_index], message)
             elif message.startswith("random place"):
                 game.rand_place(game.players[my_index])
             elif message.startswith("place"):
@@ -61,8 +67,7 @@ def handle_client(conn, addr, game):
             elif message.startswith("confirm layout"):
                 game.players[my_index].setup = False
                 log.info(f"{game.players[my_index].name} finished their setup")
-
-                print_list(game.players[my_index].layout)
+                game.rand_place(game.players[my_index])
 
         game.time_over(myplayer)
 
