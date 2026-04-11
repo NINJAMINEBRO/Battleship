@@ -1,5 +1,7 @@
 import pygame as pg
+import colors
 
+colors = colors.Colors()
 
 class InputBox:
     def __init__(self, rect, font, color_inactive, color_active, text='', min_num=None, max_num=None, custom_validation=None):
@@ -62,7 +64,7 @@ class InputBox:
         else:
             screen.blit(self.txt_surface, (self.rect.x+5, self.rect.y+(self.rect.height//2-self.txt_surface.get_height()//2)))
         # Blit the rect.
-        pg.draw.rect(screen, self.color, self.rect, 2, 10)
+        pg.draw.rect(screen, colors.purple if self.rect.collidepoint(pg.mouse.get_pos()) else self.color, self.rect, 2, 10)
 
     def validate_custom(self):
         for char in self.text:

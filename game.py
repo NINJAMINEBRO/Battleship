@@ -30,23 +30,19 @@ class Game:
             log.info(f"Player {player.name} is not in the game.")
 
     def start_game(self):
-        if len(self.players) < 2:
-            log.info("Not enough players to start the game.")
-
         for i in range(len(self.players)):
             self.players[i].setup = True
             self.players[i].turn_start = time.time()
             self.players[i].time_for_layout = self.layout_time
             for j in range(self.boardsize):
-                row = ["W" for _ in range(self.boardsize)]
-                self.players[i].layout.append(row)
                 row = ["" for _ in range(self.boardsize)]
-                self.players[i].enemy_layout.append(row)
+                self.players[i].layout.append(copy.deepcopy(row))
+                self.players[i].enemy_layout.append(copy.deepcopy(row))
 
-            self.players[i].inventory.append(self.boardsize*self.boardsize//36)
-            self.players[i].inventory.append(self.boardsize*self.boardsize//48)
-            self.players[i].inventory.append(self.boardsize*self.boardsize//72)
-            self.players[i].inventory.append(self.boardsize*self.boardsize//144)
+            self.players[i].inventory.append(self.boardsize*self.boardsize//30)  # 36 48 72 144
+            self.players[i].inventory.append(self.boardsize*self.boardsize//35)
+            self.players[i].inventory.append(self.boardsize*self.boardsize//50)
+            self.players[i].inventory.append(self.boardsize*self.boardsize//74)
 
             if self.players[i].inventory[0] <= 0:
                 self.players[i].inventory[0] = 1
@@ -76,15 +72,18 @@ class Game:
         enemy_index = copy.deepcopy(self.players)
         enemy_index.pop(player.player_id)
         enemy = enemy_index[0]
-        player.enemy_layout[y][x] = "S" if enemy.layout[y][x] != "W" else "W"
 
-        self.next_player()
+        if enemy.layout[y][x] == "" or player.enemy_layout[y][x] != "":
+            self.next_player()
+        else:
+            player.turn_start = time.time()
+        player.enemy_layout[y][x] = "S" if enemy.layout[y][x] != "" else "W"
 
     def time_over(self, player):
         if self.phase == 0 and player.turn_start + self.layout_time <= time.time() and player.setup:
             log.info(f"{player.name} has run out of time")
-            player.setup = False
             self.rand_place(player)
+            player.setup = False
         elif self.phase == 1 and player.is_my_turn and player.turn_start + player.time_for_turn <= time.time():
             log.info(f"{player.name} has run out of time.")
             self.next_player()
@@ -94,6 +93,24 @@ class Game:
             self.duration = time.time() - self.starttime
             return True
         return False
+
+    def check_for_winner(self):
+        for player in self.players:
+
+            required_ships = len(player.layout)*len(player.layout[0])
+            for row in player.layout:
+                required_ships -= row.count("")
+
+            found_ships = 0
+            for row in player.enemy_layout:
+                for pos in row:
+                    if pos != "" and pos != "W":
+                        found_ships += 1
+
+            if found_ships == required_ships:
+                return player.player_id
+
+        return None
 
     def change_phase(self):
         if not self.players[0].setup and not self.players[1].setup and self.phase == 0:
@@ -109,17 +126,16 @@ class Game:
             try:
                 for i in range(int(values[1])):
                     if values[2] == "hor":
-                        if new_layout[int(values[4])][int(values[3])+i] != "W":
+                        if new_layout[int(values[4])][int(values[3])+i] != "":
                             raise Exception("ships crashing")
                         new_layout[int(values[4])][int(values[3])+i] = f"OS{values[1]}H" if i == 0 else f"S{values[1]}"
                     elif values[2] == "ver":
-                        if new_layout[int(values[4])+i][int(values[3])] != "W":
+                        if new_layout[int(values[4])+i][int(values[3])] != "":
                             raise Exception("ships crashing")
                         new_layout[int(values[4])+i][int(values[3])] = f"OS{values[1]}V" if i == 0 else f"S{values[1]}"
 
                 player.inventory[int(values[1])-1] -= 1
                 player.layout = copy.deepcopy(new_layout)
-                log.info(f"{player.name} placed a ship")
             except IndexError:
                 log.warning(f"{player.name} tried to place a ship out of bounce")
             except Exception as e:

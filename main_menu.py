@@ -20,9 +20,9 @@ class MainMenu:
 
     def loop(self, local_ip, port):
         host_ip_box = eb.InputBox(pg.Rect(self.centre.x+35, self.centre.y-37, 180, 32), self.font.normal_font,
-                                  self.color.orange, self.color.green, local_ip, custom_validation="0123456789.")
+                                  self.color.black, self.color.green, local_ip, custom_validation="0123456789.")
         host_port_box = eb.InputBox(pg.Rect(self.centre.x+35, self.centre.y+5, 180, 32), self.font.normal_font,
-                                    self.color.orange, self.color.green, port, 1024, 65535, "0123456789")
+                                    self.color.black, self.color.green, port, 1024, 65535, "0123456789")
 
         boxes = [host_ip_box, host_port_box]
 
@@ -34,20 +34,14 @@ class MainMenu:
 
             self.screen.fill("darkgray")
 
-            host_rect = pg.draw.rect(self.screen, self.color.orange, (self.centre.x-145, self.centre.y-37, 100, 32), 2, 10)
-            text = self.font.normal_font.render('Host', True, self.color.red)
-            self.screen.blit(text, (host_rect.x + (host_rect.width // 2 - text.get_width() // 2),
-                               host_rect.y + (host_rect.height // 2 - text.get_height() // 2)))
-
-            join_rect = pg.draw.rect(self.screen, self.color.orange, (self.centre.x-145, self.centre.y+5, 100, 32), 2, 10)
-            text = self.font.normal_font.render('Join', True, self.color.red)
-            self.screen.blit(text, (join_rect.x + (join_rect.width // 2 - text.get_width() // 2),
-                               join_rect.y + (join_rect.height // 2 - text.get_height() // 2)))
-
-            if pg.mouse.get_pressed()[0] and not mouse_pressed:
-                mouse_pressed = True
-
-                if host_rect.collidepoint(mousepos):
+            text = self.font.normal_font.render('Host', True, self.color.black)
+            rect = pg.Rect(self.centre.x - 145, self.centre.y - 37, 100, 32)
+            self.screen.blit(text, (rect.x + (rect.width // 2 - text.get_width() // 2),
+                               rect.y + (rect.height // 2 - text.get_height() // 2)))
+            if rect.collidepoint(mousepos):
+                pg.draw.rect(self.screen, self.color.purple, rect, 2, 10)
+                if pg.mouse.get_pressed()[0] and not mouse_pressed:
+                    mouse_pressed = True
                     try:
                         self.server = Process(target=server.start_server,
                                     args=(host_ip_box.text, int(host_port_box.text)))
@@ -56,8 +50,18 @@ class MainMenu:
                         return True
                     except Exception as e:
                         log.warning(f"Coudn't start server: {e}")
+            else:
+                pg.draw.rect(self.screen, self.color.black, rect, 2, 10)
 
-                elif join_rect.collidepoint(mousepos):
+            text = self.font.normal_font.render('Join', True, self.color.black)
+            rect = pg.Rect(self.centre.x - 145, self.centre.y + 5, 100, 32)
+            self.screen.blit(text, (rect.x + (rect.width // 2 - text.get_width() // 2),
+                               rect.y + (rect.height // 2 - text.get_height() // 2)))
+
+            if rect.collidepoint(mousepos):
+                pg.draw.rect(self.screen, self.color.purple, rect, 2, 10)
+                if pg.mouse.get_pressed()[0] and not mouse_pressed:
+                    mouse_pressed = True
                     try:
                         self.client = client.Client(host_ip_box.text, int(host_port_box.text))
                         return True
@@ -67,6 +71,8 @@ class MainMenu:
                     except Exception as e:
                         log.error(f"coudn't connect to server: {e}")
                         continue
+            else:
+                pg.draw.rect(self.screen, self.color.black, rect, 2, 10)
 
             for box in boxes:
                 box.draw(self.screen)

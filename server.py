@@ -13,7 +13,7 @@ names = names.Names()
 
 def handle_client(conn, addr, game):
     log.success(f"Connected by {addr}")
-    command_timeout = 0.2
+    command_timeout = 0.1
     last_command_time = time.time()
     my_index = len(game.players)
 
@@ -55,23 +55,24 @@ def handle_client(conn, addr, game):
             last_command_time = time.time()
             if message.startswith("shoot"):
                 game.shoot_field(game.players[my_index], message)
+                winner = game.check_for_winner()
+                if winner is not None:
+                    game.game_over = True
+                    log.info(f"{game.players[winner].name} won!")
             elif message.startswith("random place"):
                 game.rand_place(game.players[my_index])
             elif message.startswith("place"):
                 if game.players[my_index].setup:
                     game.place_ship(game.players[my_index], message)
 
-                if my_index == 0:
-                    print_list(game.players[my_index].layout)
-
             elif message.startswith("confirm layout"):
-                game.players[my_index].setup = False
                 log.info(f"{game.players[my_index].name} finished their setup")
                 game.rand_place(game.players[my_index])
+                game.players[my_index].setup = False
 
         if game.has_started:
             game.change_phase()
-            game.time_over(myplayer)
+            game.time_over(game.players[my_index])
 
         if game.is_game_over():
             message = pickle.dumps(["Game Over"])

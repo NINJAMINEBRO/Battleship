@@ -32,7 +32,7 @@ class GameMenu:
     def loop(self):
         mouse_pressed = True
         data = None
-        send_cooldown = 0.2
+        send_cooldown = 0.1
         last_send_time = time()
         selection = []
         while True:
@@ -137,6 +137,27 @@ class GameMenu:
                     else:
                         pg.draw.rect(self.screen, self.color.black, rect, 2, 10)
 
+                    time_left = myplayer.turn_start + myplayer.time_for_layout - time()
+                    if time_left > 0:
+                        text = self.font.normal_font.render(f"Time Left: {int(round(time_left, 0))}", True,
+                                                            self.color.black)
+                        self.screen.blit(text, (self.centre.x - text.get_width() // 2, rect.y + text.get_height() + 10))
+
+                    pad = 3
+                    text = self.font.normal_font.render(f"random", True, self.color.black)
+                    rect = pg.Rect((self.centre.x + base_scale // 2) - text.get_width() - (pad * 2),
+                                   self.centre.y + base_scale // 2 + pad,
+                                   text.get_width() + pad * 2,
+                                   text.get_height() + pad * 2)
+                    self.screen.blit(text, (rect.x + pad, rect.y + pad))
+                    if rect.collidepoint(mousepos):
+                        pg.draw.rect(self.screen, self.color.purple, rect, 2, 10)
+                        if pg.mouse.get_pressed()[0] and not mouse_pressed:
+                            mouse_pressed = True
+                            message = "random place"
+                    else:
+                        pg.draw.rect(self.screen, self.color.black, rect, 2, 10)
+
                     if selection:
                         if selection[1].endswith("hor"):
                             self.screen.blit(selection[0], (mousepos[0]-(selection[0].get_height()//2),
@@ -155,26 +176,6 @@ class GameMenu:
                             elif selection[1].endswith("ver"):
                                 selection[1] = selection[1][:-3]+"hor"
                                 selection[0] = pg.transform.rotate(selection[0], 90)
-
-                    time_left = myplayer.turn_start + myplayer.time_for_layout - time()
-                    if time_left > 0:
-                        text = self.font.normal_font.render(f"Time Left: {int(round(time_left, 0))}", True, self.color.black)
-                        self.screen.blit(text, (self.centre.x-text.get_width()//2, rect.y+text.get_height() + 10))
-
-                    pad = 3
-                    text = self.font.normal_font.render(f"random", True, self.color.black)
-                    rect = pg.Rect((self.centre.x+base_scale//2)-text.get_width()-(pad*2),
-                                   self.centre.y+base_scale//2+pad,
-                                   text.get_width()+pad*2,
-                                   text.get_height()+pad*2)
-                    self.screen.blit(text, (rect.x + pad, rect.y + pad))
-                    if rect.collidepoint(mousepos):
-                        pg.draw.rect(self.screen, self.color.purple, rect, 2, 10)
-                        if pg.mouse.get_pressed()[0] and not mouse_pressed:
-                            mouse_pressed = True
-                            message = "random place"
-                    else:
-                        pg.draw.rect(self.screen, self.color.black, rect, 2, 10)
 
                 elif not myplayer.setup and myplayer.turn_start > 0:
                     base_scale = 400
@@ -212,9 +213,8 @@ class GameMenu:
                         self.screen.blit(text, (self.centre.x-text.get_width()//2, 1000))
                     elif time_left > 0:
                         text = self.font.normal_font.render(f"Time Left: {int(round(time_left, 0))}", True,
-                                                            self.color.black)
+                                                            self.color.black if int(round(time_left, 0)) > 5 else self.color.red)
                         self.screen.blit(text, (self.centre.x - text.get_width() // 2, 1000))
-
 
             else:
                 if self.server is not None:

@@ -13,7 +13,7 @@ class Bot:
 
     def loop(self):
         data = None
-        send_cooldown = 0.3
+        send_cooldown = 0.15
         last_send_time = time()
         while True:
             message = "a"
