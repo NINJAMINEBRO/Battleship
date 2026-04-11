@@ -177,6 +177,21 @@ class GameMenu:
                         text = self.font.normal_font.render(f"Time Left: {int(round(time_left, 0))}", True, self.color.black)
                         self.screen.blit(text, (self.centre.x-text.get_width()//2, rect.y+text.get_height() + 10))
 
+                    pad = 3
+                    text = self.font.normal_font.render(f"random", True, self.color.black)
+                    rect = pg.Rect((self.centre.x+base_scale//2)-text.get_width()-(pad*2),
+                                   self.centre.y+base_scale//2+pad,
+                                   text.get_width()+pad*2,
+                                   text.get_height()+pad*2)
+                    self.screen.blit(text, (rect.x + pad, rect.y + pad))
+                    if rect.collidepoint(mousepos):
+                        pg.draw.rect(self.screen, self.color.purple, rect, 2, 10)
+                        if pg.mouse.get_pressed()[0] and not mouse_pressed:
+                            mouse_pressed = True
+                            message = "random place"
+                    else:
+                        pg.draw.rect(self.screen, self.color.black, rect, 2, 10)
+
             else:
                 if self.server is not None:
                     self.server.terminate()
