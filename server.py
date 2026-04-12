@@ -75,7 +75,7 @@ def handle_client(conn, addr, game):
             game.time_over(game.players[my_index])
 
         if game.is_game_over():
-            message = pickle.dumps(["Game Over"])
+            message = pickle.dumps(["Game Over", game.get_game_over_stats()])
         else:
             message = pickle.dumps([myplayer, enemy, game.boardsize])
 

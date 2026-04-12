@@ -14,6 +14,7 @@ class Game:
         self.has_started = False
         self.set_boardsize(12)
         self.layout_time = 60
+        self.winner_id = None
 
     def add_player(self, player):
         if player not in self.players:
@@ -108,6 +109,7 @@ class Game:
                         found_ships += 1
 
             if found_ships == required_ships:
+                self.winner_id = player.player_id
                 return player.player_id
 
         return None
@@ -158,3 +160,6 @@ class Game:
             log.warning(f"You can not set the board size above 24")
             boardsize = 24
         self.boardsize = boardsize
+
+    def get_game_over_stats(self):
+        return [self.turn_count, self.duration, self.winner_id]

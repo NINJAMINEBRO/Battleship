@@ -35,12 +35,14 @@ class GameMenu:
         send_cooldown = 0.1
         last_send_time = time()
         selection = []
+        myplayer = None
+        enemy = None
         while True:
             message = "a"
             if not pg.mouse.get_pressed()[0] and not pg.mouse.get_pressed()[2]:
                 mouse_pressed = False
 
-            self.screen.fill("darkgray")  # fill the screen with a color to wipe away anything from last frame
+            self.screen.fill("darkgray")
             data = self.client.receive_message(data)
             if data is not None:
                 if data[0] == "Game Over":
@@ -50,7 +52,7 @@ class GameMenu:
                         self.server.terminate()
                     else:
                         self.client.disconnect()
-                    return True
+                    return True, myplayer, data[1]
 
                 myplayer = data[0]
                 enemy = data[1]
@@ -105,7 +107,9 @@ class GameMenu:
 
                             if selection and pg.mouse.get_pressed()[0] and not mouse_pressed and rect.collidepoint(mousepos):
                                 mouse_pressed = True
-                                message = f"place:{selection[1]}:{x}:{y}"
+                                if time() >= last_send_time + send_cooldown:
+                                    message = f"place:{selection[1]}:{x}:{y}"
+                                    last_send_time = time()
                                 selection = []
 
                     self.draw_ships(boardsize, myplayer.layout, origin_x, origin_y, scale)
@@ -133,7 +137,9 @@ class GameMenu:
                         pg.draw.rect(self.screen, self.color.purple, rect, 2, 10)
                         if pg.mouse.get_pressed()[0] and not mouse_pressed:
                             mouse_pressed = True
-                            message = "confirm layout"
+                            if time() >= last_send_time + send_cooldown:
+                                message = "confirm layout"
+                                last_send_time = time()
                     else:
                         pg.draw.rect(self.screen, self.color.black, rect, 2, 10)
 
@@ -154,7 +160,9 @@ class GameMenu:
                         pg.draw.rect(self.screen, self.color.purple, rect, 2, 10)
                         if pg.mouse.get_pressed()[0] and not mouse_pressed:
                             mouse_pressed = True
-                            message = "random place"
+                            if time() >= last_send_time + send_cooldown:
+                                message = "random place"
+                                last_send_time = time()
                     else:
                         pg.draw.rect(self.screen, self.color.black, rect, 2, 10)
 
@@ -203,7 +211,9 @@ class GameMenu:
 
                             if pg.mouse.get_pressed()[0] and not mouse_pressed and rect.collidepoint(mousepos):
                                 mouse_pressed = True
-                                message = f"shoot:{x}:{y}"
+                                if time() >= last_send_time + send_cooldown:
+                                    message = f"shoot:{x}:{y}"
+                                    last_send_time = time()
 
                     self.draw_ships(boardsize, myplayer.enemy_layout, origin_x, origin_y, scale)
 
@@ -220,7 +230,7 @@ class GameMenu:
                 if self.server is not None:
                     self.server.terminate()
                 log.error("aborted game")
-                return True
+                return True, None, None
 
             self.client.send_message(message)
 
@@ -232,7 +242,7 @@ class GameMenu:
                     if self.server is not None:
                         self.server.terminate()
                     pg.quit()
-                    return False
+                    return False, None, None
 
     def draw_ships(self, boardsize, layout, origin_x, origin_y, scale):
         for y in range(boardsize):

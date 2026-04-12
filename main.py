@@ -6,6 +6,8 @@ import pygame as pg
 from multiprocessing import freeze_support
 import centre
 import game_menu as MenuGame
+import end_screen_menu as EndScreenMenu
+
 
 def get_lan_ip():
     try:
@@ -49,4 +51,8 @@ if __name__ == '__main__':
 
         if running:
             game_menu = MenuGame.GameMenu(fps, clock, screen, centre, main_menu.server, main_menu.client)
-            running = game_menu.loop()
+            running, myplayer, data = game_menu.loop()
+
+            if running and myplayer and data:
+                end_screen_menu = EndScreenMenu.EndScreenMenu(fps, clock, screen, centre)
+                running = end_screen_menu.loop(myplayer, data)
