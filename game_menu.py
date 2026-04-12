@@ -221,7 +221,7 @@ class GameMenu:
                     if enemy.setup:
                         text = self.font.normal_font.render(f"Waiting for enemy", True, self.color.black)
                         self.screen.blit(text, (self.centre.x-text.get_width()//2, 1000))
-                    elif time_left > 0:
+                    elif time_left > 0 and myplayer.is_my_turn:
                         text = self.font.normal_font.render(f"Time Left: {int(round(time_left, 0))}", True,
                                                             self.color.black if int(round(time_left, 0)) > 5 else self.color.red)
                         self.screen.blit(text, (self.centre.x - text.get_width() // 2, 1000))

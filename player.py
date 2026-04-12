@@ -8,6 +8,7 @@ class Player:
         self.turn_start = 0
         self.time_for_turn = 15
         self.setup = False
+        self.shoots_fired = 0
 
         # Set on Server in Game logic
         self.time_for_layout = 0

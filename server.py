@@ -54,11 +54,12 @@ def handle_client(conn, addr, game):
         elif time.time() >= last_command_time + command_timeout:
             last_command_time = time.time()
             if message.startswith("shoot"):
-                game.shoot_field(game.players[my_index], message)
-                winner = game.check_for_winner()
-                if winner is not None:
-                    game.game_over = True
-                    log.info(f"{game.players[winner].name} won!")
+                if game.players[my_index].is_my_turn and game.phase == 1:
+                    game.shoot_field(game.players[my_index], message)
+                    winner = game.check_for_winner()
+                    if winner is not None:
+                        game.game_over = True
+                        log.info(f"{game.players[winner].name} won!")
             elif message.startswith("random place"):
                 game.rand_place(game.players[my_index])
             elif message.startswith("place"):
@@ -80,7 +81,6 @@ def handle_client(conn, addr, game):
             message = pickle.dumps([myplayer, enemy, game.boardsize])
 
         conn.sendall(message)
-
 
 def print_list(l):
     for i in range(len(l)):

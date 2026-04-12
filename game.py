@@ -12,7 +12,7 @@ class Game:
         self.turn_count = 0
         self.duration = 0
         self.has_started = False
-        self.set_boardsize(12)
+        self.set_boardsize(8)
         self.layout_time = 60
         self.winner_id = None
 
@@ -40,7 +40,7 @@ class Game:
                 self.players[i].layout.append(copy.deepcopy(row))
                 self.players[i].enemy_layout.append(copy.deepcopy(row))
 
-            self.players[i].inventory.append(self.boardsize*self.boardsize//30)  # 36 48 72 144
+            self.players[i].inventory.append(self.boardsize*self.boardsize//30)  # 30 35 50 74
             self.players[i].inventory.append(self.boardsize*self.boardsize//35)
             self.players[i].inventory.append(self.boardsize*self.boardsize//50)
             self.players[i].inventory.append(self.boardsize*self.boardsize//74)
@@ -79,6 +79,7 @@ class Game:
         else:
             player.turn_start = time.time()
         player.enemy_layout[y][x] = "S" if enemy.layout[y][x] != "" else "W"
+        player.shoots_fired += 1
 
     def time_over(self, player):
         if self.phase == 0 and player.turn_start + self.layout_time <= time.time() and player.setup:

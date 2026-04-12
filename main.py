@@ -1,5 +1,4 @@
 import logger as log
-import colors as color
 import socket
 import main_menu as MenuMain
 import pygame as pg
@@ -53,6 +52,6 @@ if __name__ == '__main__':
             game_menu = MenuGame.GameMenu(fps, clock, screen, centre, main_menu.server, main_menu.client)
             running, myplayer, data = game_menu.loop()
 
-            if running and myplayer and data:
+            if running and myplayer and data and myplayer.shoots_fired > 0:
                 end_screen_menu = EndScreenMenu.EndScreenMenu(fps, clock, screen, centre)
                 running = end_screen_menu.loop(myplayer, data)
