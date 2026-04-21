@@ -6,9 +6,10 @@ from multiprocessing import Process
 import logger as log
 import server
 import client
+import settings_menu
 
 class MainMenu:
-    def __init__(self, fps, clock, screen, centre):
+    def __init__(self, fps, clock, screen, centre, settings):
         self.fps_cap = fps
         self.clock = clock
         self.screen = screen
@@ -17,6 +18,8 @@ class MainMenu:
         self.font = font.Fonts()
         self.client = None
         self.server = None
+        self.settings = settings
+        self.settingsMenu = settings_menu.SettingsMenu(self.fps_cap, self.clock, self.screen, self.centre, self.settings)
 
     def loop(self, local_ip, port):
         host_ip_box = eb.InputBox(pg.Rect(self.centre.x+35, self.centre.y-37, 180, 32), self.font.normal_font,
@@ -44,7 +47,7 @@ class MainMenu:
                     mouse_pressed = True
                     try:
                         self.server = Process(target=server.start_server,
-                                    args=(host_ip_box.text, int(host_port_box.text)))
+                                    args=(host_ip_box.text, int(host_port_box.text), self.settings))
                         self.server.start()
                         self.client = client.Client(host_ip_box.text, int(host_port_box.text))
                         return True
@@ -57,7 +60,6 @@ class MainMenu:
             rect = pg.Rect(self.centre.x - 145, self.centre.y + 5, 100, 32)
             self.screen.blit(text, (rect.x + (rect.width // 2 - text.get_width() // 2),
                                rect.y + (rect.height // 2 - text.get_height() // 2)))
-
             if rect.collidepoint(mousepos):
                 pg.draw.rect(self.screen, self.color.purple, rect, 2, 10)
                 if pg.mouse.get_pressed()[0] and not mouse_pressed:
@@ -71,6 +73,19 @@ class MainMenu:
                     except Exception as e:
                         log.error(f"coudn't connect to server: {e}")
                         continue
+            else:
+                pg.draw.rect(self.screen, self.color.black, rect, 2, 10)
+
+            text = self.font.symbol_font.render('⚙', True, self.color.black)
+            rect = pg.Rect(self.screen.get_width()-60, 10, 50, 50)
+            self.screen.blit(text, (rect.x + (rect.width // 2 - text.get_width() // 2),
+                                    rect.y + (rect.height // 2 - text.get_height() // 2)))
+            if rect.collidepoint(mousepos):
+                pg.draw.rect(self.screen, self.color.purple, rect, 2, 10)
+                if pg.mouse.get_pressed()[0] and not mouse_pressed:
+                    mouse_pressed = True
+                    if not self.settingsMenu.loop():
+                        return False
             else:
                 pg.draw.rect(self.screen, self.color.black, rect, 2, 10)
 
@@ -89,9 +104,9 @@ class MainMenu:
                         pg.quit()
                         return False
 
-                for box in boxes:
-                    box.handle_event(event)
-
                 if event.type == pg.QUIT:
                     pg.quit()
                     return False
+
+                for box in boxes:
+                    box.handle_event(event)

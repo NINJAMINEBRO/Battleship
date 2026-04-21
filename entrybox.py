@@ -27,6 +27,8 @@ class InputBox:
                     self.text = ""
                 else:
                     self.color = self.color_inactive
+                    self.validate_numtext(self.max_num, ">")
+                    self.validate_numtext(self.min_num, "<")
             else:
                 self.active = False
                 self.color = self.color_inactive
@@ -40,6 +42,8 @@ class InputBox:
                 if event.key == pg.K_RETURN:
                     self.active = False
                     self.color = self.color_inactive
+                    self.validate_numtext(self.max_num, ">")
+                    self.validate_numtext(self.min_num, "<")
                 elif event.key == pg.K_v and event.mod & pg.KMOD_CTRL:
                     clipboard_text = pg.scrap.get(pg.SCRAP_TEXT)
                     try:

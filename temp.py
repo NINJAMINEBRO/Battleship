@@ -6,7 +6,6 @@ from multiprocessing import freeze_support
 import centre
 import game_menu as MenuGame
 import end_screen_menu as EndScreenMenu
-import settings
 
 
 def get_lan_ip():
@@ -42,18 +41,17 @@ if __name__ == '__main__':
     clock = pg.time.Clock()
     fps = 60
     running = True
-    settings = settings.Settings()
 
     initialize_extras()
 
     while running:
-        main_menu = MenuMain.MainMenu(fps, clock, screen, centre, settings)
+        main_menu = MenuMain.MainMenu(fps, clock, screen, centre)
         running = main_menu.loop(get_lan_ip(), "56565")
 
         if running:
             game_menu = MenuGame.GameMenu(fps, clock, screen, centre, main_menu.server, main_menu.client)
             running, myplayer, data = game_menu.loop()
 
-            if running and myplayer and data and data[2] is not None:
+            if running and myplayer and data and myplayer.shoots_fired > 0:
                 end_screen_menu = EndScreenMenu.EndScreenMenu(fps, clock, screen, centre)
                 running = end_screen_menu.loop(myplayer, data)

@@ -86,8 +86,8 @@ def print_list(l):
     for i in range(len(l)):
         print(l[i])
 
-def start_server(host, port):
-    Game = game.Game()
+def start_server(host, port, settings):
+    Game = game.Game(settings)
 
     # Create a socket object using IPv4 and TCP
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:

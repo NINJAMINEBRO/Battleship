@@ -4,7 +4,7 @@ import copy
 import random
 
 class Game:
-    def __init__(self):
+    def __init__(self, settings):
         self.players = []
         self.starttime = 0
         self.phase = -1
@@ -12,11 +12,13 @@ class Game:
         self.turn_count = 0
         self.duration = 0
         self.has_started = False
-        self.set_boardsize(8)
-        self.layout_time = 60
+        self.settings = settings
+        self.set_boardsize(self.settings.fieldsize)
+        self.layout_time = self.settings.layout_time
         self.winner_id = None
 
     def add_player(self, player):
+        player.time_for_turn = self.settings.turn_time
         if player not in self.players:
             self.players.append(player)
             log.success(f"Player {player.name} added to game.")
@@ -163,4 +165,4 @@ class Game:
         self.boardsize = boardsize
 
     def get_game_over_stats(self):
-        return [self.turn_count, self.duration, self.winner_id]
+        return [self.turn_count+1, self.duration, self.winner_id]  # +1 cuz next player is not called after a win
