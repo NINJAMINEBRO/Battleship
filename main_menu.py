@@ -86,6 +86,7 @@ class MainMenu:
                     mouse_pressed = True
                     if not self.settingsMenu.loop():
                         return False
+
             else:
                 pg.draw.rect(self.screen, self.color.black, rect, 2, 10)
 

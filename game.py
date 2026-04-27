@@ -174,8 +174,13 @@ class Game:
             position_offsets = [[0, 0]]
 
         for offset in position_offsets:
-            if layout[pos[0]+offset[0]][pos[1]+offset[1]] != "" and offset != except_pos:
-                return True
+            try:
+                pos_1 = pos[0] + offset[0]
+                pos_2 = pos[1] + offset[1]
+                if layout[pos_1][pos_2] != "" and offset != except_pos and pos_1 >= 0 and pos_2 >= 0:
+                    return True
+            except IndexError:
+                pass
         return False
 
     def set_boardsize(self, boardsize):
