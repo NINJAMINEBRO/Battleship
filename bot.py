@@ -75,15 +75,13 @@ class Bot:
                     message = f"shoot:{pos[0]}:{pos[1]}"
                     break
             if message is None:
-                coords_left = len(coords)
-                for i in range(coords_left):
-                    coord = random.choice(coords)
-                    coords.remove(coord)
+                random.shuffle(coords)
+                for coord in coords:
                     if not self.check_for_diagonal(coord, layout):
                         message = f"shoot:{coord[0]}:{coord[1]}"
                         break
         if message is None:
-            message = f"shoot:0:0"
+            message = self.difficulty_1_play_logic(coords)
         return message
 
     def check_for_hit_around(self, pos, layout):
@@ -106,8 +104,6 @@ class Bot:
         for offset in offsets:
             pos_1 = pos[0] + offset[0]
             pos_2 = pos[1] + offset[1]
-            if len(layout[0]) > pos_1 >= 0 and len(layout) > pos_2 >= 0:
-                print(layout[pos_2][pos_1])
             if len(layout[0]) > pos_1 >= 0 and len(layout) > pos_2 >= 0 and "S" in layout[pos_2][pos_1]:
                 return True
         return False
