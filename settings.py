@@ -7,3 +7,4 @@ class Settings:
         self.layout_time_min = 1
         self.turn_time = 15
         self.turn_time_min = 1
+        self.strict_placement = False

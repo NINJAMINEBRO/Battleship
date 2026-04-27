@@ -16,6 +16,7 @@ class Game:
         self.set_boardsize(self.settings.fieldsize)
         self.layout_time = self.settings.layout_time
         self.winner_id = None
+        self.strict_placement = settings.strict_placement
 
     def add_player(self, player):
         player.time_for_turn = self.settings.turn_time
@@ -131,13 +132,21 @@ class Game:
             try:
                 for i in range(int(values[1])):
                     if values[2] == "hor":
-                        if new_layout[int(values[4])][int(values[3])+i] != "":
-                            raise Exception("ships crashing")
-                        new_layout[int(values[4])][int(values[3])+i] = f"OS{values[1]}H" if i == 0 else f"S{values[1]}"
-                    elif values[2] == "ver":
-                        if new_layout[int(values[4])+i][int(values[3])] != "":
-                            raise Exception("ships crashing")
-                        new_layout[int(values[4])+i][int(values[3])] = f"OS{values[1]}V" if i == 0 else f"S{values[1]}"
+                        new_pos = [int(values[4]), int(values[3])+i]
+                        letter = "H"
+                        except_pos = [0, -1]
+
+                    else:  # value[2] == 'ver'
+                        new_pos = [int(values[4])+i, int(values[3])]
+                        letter = "V"
+                        except_pos = [-1, 0]
+
+                    if not i:
+                        except_pos = None
+
+                    if self.check_for_ship_around(new_pos, new_layout, except_pos):
+                        raise Exception("ships crashing")
+                    new_layout[new_pos[0]][new_pos[1]] = f"OS{values[1]}{letter}" if i == 0 else f"S{values[1]}"
 
                 player.inventory[int(values[1])-1] -= 1
                 player.layout = copy.deepcopy(new_layout)
@@ -157,6 +166,17 @@ class Game:
                        f"{random.randint(0, len(player.layout))}:"
                        f"{random.randint(0, len(player.layout[0]))}")
             self.place_ship(player, command)
+
+    def check_for_ship_around(self, pos, layout, except_pos):
+        if self.strict_placement:
+            position_offsets = [[-1, -1], [0, -1], [1, -1], [-1, 0], [1, 0], [-1, 1], [0, 1], [1, 1], [0, 0]]
+        else:
+            position_offsets = [[0, 0]]
+
+        for offset in position_offsets:
+            if layout[pos[0]+offset[0]][pos[1]+offset[1]] != "" and offset != except_pos:
+                return True
+        return False
 
     def set_boardsize(self, boardsize):
         if boardsize > 24:
