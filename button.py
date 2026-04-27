@@ -14,8 +14,8 @@ class Button:
         self.text_surface = self.font.render(self.element, True, self.color)
 
     def handle_event(self, event):
-        if self.rect.collidepoint(event.pos):
-            if event.type == pg.MOUSEBUTTONDOWN:
+        if event.type == pg.MOUSEBUTTONDOWN:
+            if self.rect.collidepoint(event.pos):
                 self.rotate()
 
     def rotate(self):

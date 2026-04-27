@@ -21,10 +21,12 @@ class SettingsMenu:
                                             self.color.green, str(self.settings.layout_time), 1, 300, "0123456789")
         turn_time_box = entrybox.InputBox(pg.Rect(100, 340, 150, 50), self.font.normal_font, self.color.black,
                                           self.color.green, str(self.settings.turn_time), 1, 60, "0123456789")
-        strict_place_box = button.Button(pg.Rect(100, 460, 150, 50), self.font.normal_font, self.color.black,
+        bot_difficulty_box = button.Button(pg.Rect(100, 460, 150, 50), self.font.normal_font, self.color.black,
+                                         ['1', '2'], int(settings.bot_difficulty)-1)
+        strict_place_box = button.Button(pg.Rect(100, 580, 150, 50), self.font.normal_font, self.color.black,
                                          ['True', 'False'], 0 if settings.strict_placement else 1)
 
-        self.boxes = [fieldsize_box, layout_time_box, turn_time_box, strict_place_box]
+        self.boxes = [fieldsize_box, layout_time_box, turn_time_box, strict_place_box, bot_difficulty_box]
 
     def loop(self):
         mouse_pressed = False
@@ -82,6 +84,16 @@ class SettingsMenu:
             width = 50
             origin_y = 460
             height = 50
+            text = self.font.symbol_font.render(f"Bot Difficulty:", True, self.color.black)
+            rect = pg.Rect(origin_x - width - pad, origin_y - height, width * 3 + pad * 3, height)
+            self.screen.blit(text, (rect.x + (rect.width // 2 - text.get_width() // 2),
+                                    rect.y + (rect.height // 2 - text.get_height() // 2)))
+
+            origin_x = 150
+            pad = 0
+            width = 50
+            origin_y = 580
+            height = 50
             text = self.font.symbol_font.render(f"Strict placement:", True, self.color.black)
             rect = pg.Rect(origin_x - width - pad, origin_y - height, width * 3 + pad * 3, height)
             self.screen.blit(text, (rect.x + (rect.width // 2 - text.get_width() // 2),
@@ -95,6 +107,7 @@ class SettingsMenu:
                 self.settings.layout_time = int(self.boxes[1].text)
                 self.settings.turn_time = int(self.boxes[2].text)
                 self.settings.strict_placement = True if self.boxes[3].element == "True" else False
+                self.settings.bot_difficulty = int(self.boxes[4].element)
             except ValueError:
                 pass
 
