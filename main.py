@@ -51,7 +51,7 @@ if __name__ == '__main__':
         running = main_menu.loop(get_lan_ip(), "56565")
 
         if running:
-            game_menu = MenuGame.GameMenu(fps, clock, screen, centre, main_menu.server, main_menu.client)
+            game_menu = MenuGame.GameMenu(fps, clock, screen, centre, main_menu.server, main_menu.client, settings)
             running, myplayer, data = game_menu.loop()
 
             if running and myplayer and data and data[2] is not None:

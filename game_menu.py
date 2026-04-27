@@ -19,7 +19,7 @@ class GameMenu:
     symbol_water = pg.transform.scale_by(pg.image.load(f"assets/{pack_name}/symbols/water.png"), scale_factor)
     ships = [ship_1x1, ship_1x2, ship_1x3, ship_1x4]
 
-    def __init__(self, fps, clock, screen, centre, server, client):
+    def __init__(self, fps, clock, screen, centre, server, client, settings):
         self.fps_cap = fps
         self.clock = clock
         self.screen = screen
@@ -28,6 +28,7 @@ class GameMenu:
         self.font = font.Fonts()
         self.server = server
         self.client = client
+        self.settings = settings
 
     def loop(self):
         mouse_pressed = True
@@ -85,7 +86,7 @@ class GameMenu:
                         pg.draw.rect(self.screen, self.color.purple, rect, 2, 10)
                         if pg.mouse.get_pressed()[0] and not mouse_pressed:
                             mouse_pressed = True
-                            t1 = Thread(target=bot.Bot, args=(self.client.host, self.client.port))
+                            t1 = Thread(target=bot.Bot, args=(self.client.host, self.client.port, self.settings.bot_difficulty))
                             t1.start()
                     else:
                          pg.draw.rect(self.screen, self.color.black, rect, 2, 10)

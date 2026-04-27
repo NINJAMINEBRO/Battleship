@@ -8,4 +8,4 @@ class Settings:
         self.turn_time = 15
         self.turn_time_min = 1
         self.strict_placement = True
-        self.bot_difficulty = 0
+        self.bot_difficulty = 2

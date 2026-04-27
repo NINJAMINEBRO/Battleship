@@ -44,7 +44,7 @@ class Game:
                 self.players[i].enemy_layout.append(copy.deepcopy(row))
 
             self.players[i].inventory.append(self.boardsize*self.boardsize//30)  # 30 35 50 74
-            self.players[i].inventory.append(self.boardsize*self.boardsize//35)
+            self.players[i].inventory.append(self.boardsize*self.boardsize//37)
             self.players[i].inventory.append(self.boardsize*self.boardsize//50)
             self.players[i].inventory.append(self.boardsize*self.boardsize//74)
 
