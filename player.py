@@ -15,3 +15,6 @@ class Player:
         self.layout = []
         self.enemy_layout = []
         self.inventory = []
+        self.original_inventory = []
+        self.ships_left = []
+        self.enemy_ships_left = []

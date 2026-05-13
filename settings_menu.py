@@ -4,6 +4,7 @@ import colors as color
 import fonts as font
 import entrybox
 import button
+import os
 
 class SettingsMenu:
     def __init__(self, fps, clock, screen, centre, settings):
@@ -22,11 +23,13 @@ class SettingsMenu:
         turn_time_box = entrybox.InputBox(pg.Rect(100, 340, 150, 50), self.font.normal_font, self.color.black,
                                           self.color.green, str(self.settings.turn_time), 1, 60, "0123456789")
         bot_difficulty_box = button.Button(pg.Rect(100, 460, 150, 50), self.font.normal_font, self.color.black,
-                                         ['1', '2'], int(settings.bot_difficulty)-1)
+                                         ['1', '2', '3'], int(settings.bot_difficulty)-1)
         strict_place_box = button.Button(pg.Rect(100, 580, 150, 50), self.font.normal_font, self.color.black,
                                          ['True', 'False'], 0 if settings.strict_placement else 1)
+        resource_pack_box = button.Button(pg.Rect(100, 700, 150, 50), self.font.normal_font, self.color.black,
+                                          os.listdir("Assets"), os.listdir("Assets").index(settings.resource_pack))
 
-        self.boxes = [fieldsize_box, layout_time_box, turn_time_box, strict_place_box, bot_difficulty_box]
+        self.boxes = [fieldsize_box, layout_time_box, turn_time_box, strict_place_box, bot_difficulty_box, resource_pack_box]
 
     def loop(self):
         mouse_pressed = False
@@ -99,6 +102,16 @@ class SettingsMenu:
             self.screen.blit(text, (rect.x + (rect.width // 2 - text.get_width() // 2),
                                     rect.y + (rect.height // 2 - text.get_height() // 2)))
 
+            origin_x = 150
+            pad = 0
+            width = 50
+            origin_y = 700
+            height = 50
+            text = self.font.symbol_font.render(f"Resource Pack:", True, self.color.black)
+            rect = pg.Rect(origin_x - width - pad, origin_y - height, width * 3 + pad * 3, height)
+            self.screen.blit(text, (rect.x + (rect.width // 2 - text.get_width() // 2),
+                                    rect.y + (rect.height // 2 - text.get_height() // 2)))
+
             for box in self.boxes:
                 box.draw(self.screen)
 
@@ -108,6 +121,7 @@ class SettingsMenu:
                 self.settings.turn_time = int(self.boxes[2].text)
                 self.settings.strict_placement = True if self.boxes[3].element == "True" else False
                 self.settings.bot_difficulty = int(self.boxes[4].element)
+                self.settings.resource_pack = self.boxes[5].element
             except ValueError:
                 pass
 

@@ -17,6 +17,10 @@ class Game:
         self.layout_time = self.settings.layout_time
         self.winner_id = None
         self.strict_placement = settings.strict_placement
+        self.x1_scaling = 30
+        self.x2_scaling = 37
+        self.x3_scaling = 50
+        self.x4_scaling = 74
 
     def add_player(self, player):
         player.time_for_turn = self.settings.turn_time
@@ -43,13 +47,16 @@ class Game:
                 self.players[i].layout.append(copy.deepcopy(row))
                 self.players[i].enemy_layout.append(copy.deepcopy(row))
 
-            self.players[i].inventory.append(self.boardsize*self.boardsize//30)  # 30 35 50 74
-            self.players[i].inventory.append(self.boardsize*self.boardsize//37)
-            self.players[i].inventory.append(self.boardsize*self.boardsize//50)
-            self.players[i].inventory.append(self.boardsize*self.boardsize//74)
+            self.players[i].inventory.append(self.boardsize*self.boardsize//self.x1_scaling)  # 30 37 50 74 standart
+            self.players[i].inventory.append(self.boardsize*self.boardsize//self.x2_scaling)
+            self.players[i].inventory.append(self.boardsize*self.boardsize//self.x3_scaling)
+            self.players[i].inventory.append(self.boardsize*self.boardsize//self.x4_scaling)
 
             if self.players[i].inventory[0] <= 0:
                 self.players[i].inventory[0] = 1
+
+            self.players[i].original_inventory = copy.deepcopy(self.players[i].inventory)
+            self.players[i].ships_left = copy.deepcopy(self.players[i].inventory)
 
         self.players[0].is_my_turn = True
         log.success(f"Game started with players: {', '.join([player.name for player in self.players])}")
@@ -73,9 +80,9 @@ class Game:
 
         x = int(values[1])
         y = int(values[2])
-        enemy_index = copy.deepcopy(self.players)
-        enemy_index.pop(player.player_id)
-        enemy = enemy_index[0]
+        enemy = copy.deepcopy(self.players)
+        enemy.pop(player.player_id)
+        enemy = enemy[0]
 
         if enemy.layout[y][x] == "" or player.enemy_layout[y][x] != "":
             self.next_player()
@@ -83,6 +90,32 @@ class Game:
             player.turn_start = time.time()
         player.enemy_layout[y][x] = "S" if enemy.layout[y][x] != "" else "W"
         player.shoots_fired += 1
+
+        self.update_sunken_ships(player, enemy)
+
+    def update_sunken_ships(self, player, enemy):
+        ships_left = copy.deepcopy(enemy.original_inventory)
+        row_i = -1
+        for row in enemy.layout:
+            row_i += 1
+            pos_i = -1
+            for pos in row:
+                pos_i += 1
+                if pos.startswith("O"):
+                    req_hits = int(pos[2])
+                    hits = 0
+                    for i in range(req_hits):
+                        if pos[3] == "V":
+                            if player.enemy_layout[row_i+i][pos_i].startswith("S"):
+                                hits += 1
+                        else:
+                            if player.enemy_layout[row_i][pos_i+i].startswith("S"):
+                                hits += 1
+
+                    if hits >= req_hits:
+                        ships_left[int(pos[2])-1] -= 1
+
+        player.enemy_ships_left = ships_left.copy()
 
     def time_over(self, player):
         if self.phase == 0 and player.turn_start + self.layout_time <= time.time() and player.setup:
@@ -190,4 +223,6 @@ class Game:
         self.boardsize = boardsize
 
     def get_game_over_stats(self):
+        if self.phase == 0:
+            self.turn_count -= 1 # -1 cuz no move was ever played and we do +1 in return
         return [self.turn_count+1, self.duration, self.winner_id]  # +1 cuz next player is not called after a win

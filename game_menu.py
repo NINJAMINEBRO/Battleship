@@ -10,14 +10,6 @@ import copy
 
 class GameMenu:
     scale_factor = 2
-    pack_name = "premium"
-    ship_1x1 = pg.transform.scale_by(pg.image.load(f"assets/{pack_name}/1x1.png"), scale_factor)
-    ship_1x2 = pg.transform.scale_by(pg.image.load(f"assets/{pack_name}/1x2.png"), scale_factor)
-    ship_1x3 = pg.transform.scale_by(pg.image.load(f"assets/{pack_name}/1x3.png"), scale_factor)
-    ship_1x4 = pg.transform.scale_by(pg.image.load(f"assets/{pack_name}/1x4.png"), scale_factor)
-    symbol_hit = pg.transform.scale_by(pg.image.load(f"assets/{pack_name}/symbols/hit.png"), scale_factor)
-    symbol_water = pg.transform.scale_by(pg.image.load(f"assets/{pack_name}/symbols/water.png"), scale_factor)
-    ships = [ship_1x1, ship_1x2, ship_1x3, ship_1x4]
 
     def __init__(self, fps, clock, screen, centre, server, client, settings):
         self.fps_cap = fps
@@ -29,6 +21,14 @@ class GameMenu:
         self.server = server
         self.client = client
         self.settings = settings
+        pack_name = self.settings.resource_pack
+        self.ship_1x1 = pg.transform.scale_by(pg.image.load(f"assets/{pack_name}/1x1.png"), self.scale_factor)
+        self.ship_1x2 = pg.transform.scale_by(pg.image.load(f"assets/{pack_name}/1x2.png"), self.scale_factor)
+        self.ship_1x3 = pg.transform.scale_by(pg.image.load(f"assets/{pack_name}/1x3.png"), self.scale_factor)
+        self.ship_1x4 = pg.transform.scale_by(pg.image.load(f"assets/{pack_name}/1x4.png"), self.scale_factor)
+        self.symbol_hit = pg.transform.scale_by(pg.image.load(f"assets/{pack_name}/symbols/hit.png"), self.scale_factor)
+        self.symbol_water = pg.transform.scale_by(pg.image.load(f"assets/{pack_name}/symbols/water.png"), self.scale_factor)
+        self.ships = [self.ship_1x1, self.ship_1x2, self.ship_1x3, self.ship_1x4]
 
     def loop(self):
         mouse_pressed = True
@@ -86,7 +86,7 @@ class GameMenu:
                         pg.draw.rect(self.screen, self.color.purple, rect, 2, 10)
                         if pg.mouse.get_pressed()[0] and not mouse_pressed:
                             mouse_pressed = True
-                            t1 = Thread(target=bot.Bot, args=(self.client.host, self.client.port, self.settings.bot_difficulty))
+                            t1 = Thread(target=bot.Bot, args=(self.client.host, self.client.port, self.settings))
                             t1.start()
                     else:
                          pg.draw.rect(self.screen, self.color.black, rect, 2, 10)

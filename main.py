@@ -28,7 +28,7 @@ def initialize_pygame():
 def initialize_extras():
     pg.scrap.init()
     pg.scrap.set_mode(pg.SCRAP_CLIPBOARD)
-    pg.display.set_caption("Schiffe versenken")
+    pg.display.set_caption("Battleship by NMB")
 
 if __name__ == '__main__':
     log.success("Client started")
@@ -43,12 +43,14 @@ if __name__ == '__main__':
     fps = 60
     running = True
     settings = settings.Settings()
+    settings.last_used_ip = get_lan_ip()
+    settings.last_used_port = "56565"
 
     initialize_extras()
 
     while running:
         main_menu = MenuMain.MainMenu(fps, clock, screen, centre, settings)
-        running = main_menu.loop(get_lan_ip(), "56565")
+        running = main_menu.loop(settings.last_used_ip, settings.last_used_port)
 
         if running:
             game_menu = MenuGame.GameMenu(fps, clock, screen, centre, main_menu.server, main_menu.client, settings)

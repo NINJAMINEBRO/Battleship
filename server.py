@@ -48,6 +48,8 @@ def handle_client(conn, addr, game):
         elif message == "surrender":
             log.info(f"{game.players[my_index].name} surrendered")
             game.game_over = True
+            if enemy is not None:
+                game.winner_id = enemy.player_id
         elif message == "a":
             pass  # message to stay connected
 

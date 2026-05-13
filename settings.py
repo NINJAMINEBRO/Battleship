@@ -8,4 +8,7 @@ class Settings:
         self.turn_time = 15
         self.turn_time_min = 1
         self.strict_placement = True
-        self.bot_difficulty = 2
+        self.bot_difficulty = 3
+        self.last_used_ip = None
+        self.last_used_port = None
+        self.resource_pack = "premium"
